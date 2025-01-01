@@ -2,8 +2,22 @@ from requests import Session
 from bs4 import BeautifulSoup
 
 def getUserInput():
-    rollno = input("Enter Roll No : ")
-    password = input("Enter Password : ")
+    #check rollno input
+    while True:
+        rollno = input("Enter Roll No : ")
+        if not rollno.strip():
+            print("Invalid ID! Try again!")
+        else:
+            break
+    
+    #check password input
+    while True:
+        password = input("Enter Password : ")
+        if not password.strip():
+            print("Empty password detected! Try again!")
+        else:
+            break
+
     return rollno,password
 
 
@@ -34,3 +48,17 @@ def getHomePage():
 
     #Get the response from POST
     response = session.post(login_url, data=payload)
+
+    #Check if we have landed on student home page
+    #and the pass the current session for the next function
+    response_soup = BeautifulSoup(response.text , "lxml")
+    check = response_soup.find("nav",{"class":"navbar navbar-expand-lg navbar-light"})
+    if check:
+        return session
+    else:
+        return None
+    
+def getStudentPercentage(session):
+    #Get the student attendance page using the current session
+    student_percentage_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/StudentPercentage"
+    student_percentage_page = session.get(student_percentage_url)
