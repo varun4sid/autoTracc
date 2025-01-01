@@ -1,7 +1,7 @@
 from requests import Session
 from bs4 import BeautifulSoup
 from csv import writer
-
+from pandas import DataFrame
 
 def getUserInput():
     #check rollno input
@@ -91,8 +91,55 @@ def getStudentPercentage(session):
         for cell in row.find_all("td"):
             record.append(cell.text)
         data.append(record)
+
+    print("Extracting attendance data...")
+    return data
     
-    #Create a csv file
-    with open("attendance.csv","w") as file:
-        file_writer = writer(file)
-        file_writer.writerows(data)
+
+
+def getAttendance(data):
+    #Get custom percentage that user wants to maintain
+    while True:
+        custom_percentage = int(input("Enter attendance percentage you would like to maintain : "))
+        if custom_percentage<0 or custom_percentage>100:
+            print("Invalid input! Try again!")
+        else:
+            break
+
+    #Declare an empty result table with header
+    result = []
+    result_header = ["COURSE_ID","RECOMMENDED_LEAVES(75%)",f"AFFORDABLE_LEAVES({custom_percentage}%)"]
+
+    #Calculate affordable leaves for each course and update result
+    for i in range(1, len(data)): #index from 1 as we exclude header
+        row=[data[i][0]]          #initialize row with course id
+        classes_total = int(data[i][1])  #typecast attendance values to int
+        classes_present = int(data[i][4])
+
+        #Calculate the recommended(75%) and customized leaves for the user and update row
+        recommended_leaves = calculateAttendance(classes_present,classes_total,75)
+        custom_leaves = calculateAttendance(classes_present,classes_total,custom_percentage)
+
+        row.extend([recommended_leaves , custom_leaves])
+        result.append(row)
+
+    df = DataFrame(result,columns=result_header)
+    print(df.to_string())
+
+        
+def calculateAttendance(classes_present , classes_total , maintenance_percentage):
+    affordable_leaves = 0
+    i=1
+
+    #First check whether or not current attendance meets maintenance and then proceed
+    if float(classes_present/classes_total)*100 < maintenance_percentage:
+        while float((classes_present + i)/(classes_total + i))*100 <= maintenance_percentage:
+            affordable_leaves -=1 #negative leaves denote number of unskippable classes to meet maintenance
+            i+=1
+    #Else block is run if maintenance is met
+    else:
+        while float(classes_present/(classes_total + i))*100 >= maintenance_percentage:
+            affordable_leaves +=1
+            i+=1
+
+    return affordable_leaves
