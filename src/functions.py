@@ -1,5 +1,7 @@
 from requests import Session
 from bs4 import BeautifulSoup
+from csv import writer
+
 
 def getUserInput():
     #check rollno input
@@ -57,8 +59,40 @@ def getHomePage():
         return session
     else:
         return None
-    
+
+
 def getStudentPercentage(session):
     #Get the student attendance page using the current session
     student_percentage_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/StudentPercentage"
     student_percentage_page = session.get(student_percentage_url)
+
+    #Get the html from the student attendance page
+    attendance_soup = BeautifulSoup(student_percentage_page.text,"lxml")
+
+    #Get the table element from the html
+    attendance_table = attendance_soup.find("table",{"class":"table table-bordered"})
+
+    #Get the list of table rows
+    table_rows = attendance_table.find_all("tr")
+
+    #Extract the values and append it to a list of records/rows
+    data = []
+    
+    #Get the first row which is a header
+    header = table_rows.pop(0)
+    row=[]
+    for cell in header.find_all("th"):
+        row.append(cell.text)
+    data.append(row)
+    
+    #Get the remaining rows
+    for row in table_rows:
+        record = []
+        for cell in row.find_all("td"):
+            record.append(cell.text)
+        data.append(record)
+    
+    #Create a csv file
+    with open("attendance.csv","w") as file:
+        file_writer = writer(file)
+        file_writer.writerows(data)
