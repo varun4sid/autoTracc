@@ -1,6 +1,6 @@
-from functions import *
-import pandas as pd
+from userlogin import *
+from attendance import *
 
-studentHomePage = getHomePage()
+studentHomePage = getHomePageAttendance()
 studentData = getStudentPercentage(studentHomePage)
 getAttendance(studentData)
