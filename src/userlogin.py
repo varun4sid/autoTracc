@@ -61,12 +61,11 @@ def getHomePageAttendance():
 
 def getHomePageCGPA():
     #Start a session
-    login_url = "https://ecampus.psgtech.ac.in/studzone2"
+    login_url = "https://ecampus.psgtech.ac.in/studzone2/"
     session = Session()
 
     #Get the login page
-    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-    login_page = session.get(login_url,headers=headers)
+    login_page = session.get(login_url)
 
     #Extract the html from the page using lxml parser
     login_soup = BeautifulSoup(login_page.text , "lxml")
@@ -97,18 +96,14 @@ def getHomePageCGPA():
         "abcd3"                : abcd3
     }
 
-    print(payload)
-
     #Get the response from POST method
     response = session.post(login_url, data=payload)
-    print("Code : ",response.status_code)
-    print(response.text)
+    
     #Check if we have landed on student home page
     #and the pass the current session for the next function
     response_soup = BeautifulSoup(response.text , "lxml")
     check = response_soup.find("table",{"id":"Title1_Menu1"})
     if check:
-        print(response_soup.title.text)
         return session
     else:
         return None

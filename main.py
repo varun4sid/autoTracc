@@ -1,5 +1,6 @@
-from userlogin import *
-from attendance import *
+from src.userlogin import *
+from src.attendance import *
+from src.cgpa import *
 
 while True:
     #Display Menu
@@ -19,7 +20,8 @@ while True:
         studentData = getStudentPercentage(studentHomePage)
         getAttendance(studentData)
     if choice == 2:
-        getHomePageCGPA()
+        studentHomePage = getHomePageCGPA()
+        coursesData = getCourses(studentHomePage)
     else:
         print("Thank You!")
         break
