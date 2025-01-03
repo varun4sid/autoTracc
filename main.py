@@ -8,20 +8,26 @@ while True:
 
     #Get and validate user option
     while True:
-        choice = int(input(">"))
-        if choice not in [1,2,3]:
-            print("Invalid option! Try again!")
-        else:
-            break
+        try:
+            choice = input(">")
+            choice = int(choice)
+            if choice in [1,2,3]:
+                break
+            else:
+                print("Invalid input! Try again!")
+        except ValueError:
+            print("Invalid input! Try again!")
+        
 
     #Execute menu option
     if choice == 1:
         studentHomePage = getHomePageAttendance()
         studentData = getStudentPercentage(studentHomePage)
         getAttendance(studentData)
-    if choice == 2:
+    elif choice == 2:
         studentHomePage = getHomePageCGPA()
         coursesData = getCourses(studentHomePage)
+        getCGPA(coursesData)
     else:
         print("Thank You!")
         break
