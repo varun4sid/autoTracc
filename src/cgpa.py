@@ -1,4 +1,4 @@
-def getCourses(session):
+def getStudentCourses(session):
     from bs4 import BeautifulSoup
 
     #Get the courses page using the current session
@@ -23,11 +23,6 @@ def getCourses(session):
             record.append(cell.text)
         data.append(record)
     
-    return data
-
-def getCGPA(data):
-    from pandas import DataFrame
-
     #Map the letter grades to their corresponding numeric values:
     letter_grade = {
         "O":10,
@@ -37,12 +32,18 @@ def getCGPA(data):
         "B":6,
         "C":5,
     }
-    
+
     #Convert required data to readable format
     for row in data[1:]:
         row[4] = int(row[4].strip())
         row[6] = letter_grade[row[6].strip()]
         row[7] = int(row[7].strip())
+
+    return data
+
+
+def getCGPA(data):
+    from pandas import DataFrame
 
     #Get the most recent semester for iterating
     most_recent_semester = data[1][4]
@@ -53,11 +54,15 @@ def getCGPA(data):
     required_columns = ["COURSE_SEM","GRADE","CREDITS"]
     df = df[required_columns]
 
+    #Declare an empty result table with header
     result_headers = ["SEMESTER","GPA","CGPA"]
     result = []
     
+    #Initialize to calculate cgpa upto each semester
     overall_product = 0
     overall_credits = 0
+
+    #Initialize backlogs flag to handle pending cgpa calculation
     backlogs = False
     for semester in range(1,most_recent_semester+1): #index from 1st to most recent semester
         if not backlogs:
@@ -81,6 +86,6 @@ def getCGPA(data):
             record = [semester , "-", "-"]
             result.append(record)
     
-
     result = DataFrame(result, columns=result_headers)
-    print(result.to_string())
+
+    return result.to_string()

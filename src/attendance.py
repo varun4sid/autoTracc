@@ -1,4 +1,4 @@
-def getStudentPercentage(session):
+def getStudentAttendance(session):
     from bs4 import BeautifulSoup
 
     #Get the student attendance page using the current session
@@ -31,20 +31,22 @@ def getStudentPercentage(session):
             record.append(cell.text)
         data.append(record)
 
-    print("Extracting attendance data...")
     return data
     
 
-def getAttendance(data):
+def getAffordableLeaves(data):
     from pandas import DataFrame
     
     #Get custom percentage that user wants to maintain
     while True:
-        custom_percentage = int(input("Enter attendance percentage you would like to maintain : "))
-        if custom_percentage<0 or custom_percentage>100:
+        try:
+            custom_percentage = int(input("Enter attendance percentage you would like to maintain : "))
+            if custom_percentage<0 or custom_percentage>100:
+                print("Invalid input! Try again!")
+            else:
+                break
+        except ValueError:
             print("Invalid input! Try again!")
-        else:
-            break
 
     #Declare an empty result table with header
     result = []
@@ -57,17 +59,18 @@ def getAttendance(data):
         classes_present = int(data[i][4])
 
         #Calculate the recommended(75%) and customized leaves for the user and update row
-        recommended_leaves = calculateAttendance(classes_present,classes_total,75)
-        custom_leaves = calculateAttendance(classes_present,classes_total,custom_percentage)
+        recommended_leaves = calculateLeaves(classes_present,classes_total,75)
+        custom_leaves = calculateLeaves(classes_present,classes_total,custom_percentage)
 
         row.extend([recommended_leaves , custom_leaves])
         result.append(row)
 
     df = DataFrame(result,columns=result_header)
     print(df.to_string())
+    print("NOTE : '-' next to number denotes number of classes that must be attended to meet the respective percentage\n")
+    
 
-        
-def calculateAttendance(classes_present , classes_total , maintenance_percentage):
+def calculateLeaves(classes_present , classes_total , maintenance_percentage):
     affordable_leaves = 0
     i=1
 
