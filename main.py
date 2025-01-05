@@ -9,8 +9,8 @@ def main():
     
     #Extract the required data from the homepages
     attendance_data = getStudentAttendance(attendance_home_page)
-    courses_data = getStudentCourses(courses_home_page)
-    cgpa_data = getCGPA(courses_data)
+    courses_data, completed_semester = getStudentCourses(courses_home_page)
+    cgpa_data = getCGPA(courses_data, completed_semester)
 
     while True:
         #Display Menu

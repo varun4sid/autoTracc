@@ -9,15 +9,15 @@ def getStudentCourses(session):
     courses_soup = BeautifulSoup(courses_page.text, "lxml")
 
     #Get the completed courses table element
-    courses_table = courses_soup.find("table",{"id":"PDGCourse"})
+    completed_courses_table = courses_soup.find("table",{"id":"PDGCourse"})
 
     #Get the table rows
-    table_rows = courses_table.find_all("tr")
+    completed_table_rows = completed_courses_table.find_all("tr")
     
     #Extract the records and values and store in list of lists
     data = []
 
-    for row in table_rows:
+    for row in completed_table_rows:
         record=[]
         for cell in row.find_all("td"):
             record.append(cell.text)
@@ -39,10 +39,25 @@ def getStudentCourses(session):
         row[6] = letter_grade[row[6].strip()]
         row[7] = int(row[7].strip())
 
-    return data
+    #Get the currently studying courses table
+    studying_courses_table = courses_soup.find("table",{"id":"Prettydatagrid3"})
+    studying_table_rows = studying_courses_table.find_all("tr")
+
+    #Extract the records and values and store in list of lists
+    studying_courses = []
+    for row in studying_table_rows:
+        record = []
+        for cell in row.find_all("td"):
+            record.append(cell.string)
+        studying_courses.append(record)
+
+    #Find the last semester with no backlogs
+    completed_semester = min(int(row[4].strip()) for row in studying_courses[1:])
+
+    return data, completed_semester
 
 
-def getCGPA(data):
+def getCGPA(data, completed_semester):
     from pandas import DataFrame
 
     #Get the most recent semester for iterating
@@ -67,7 +82,7 @@ def getCGPA(data):
     for semester in range(1,most_recent_semester+1): #index from 1st to most recent semester
         if not backlogs:
             courses = df.loc[df["COURSE_SEM"] == semester] #get all courses of particular semester
-            if "RA" in list(courses["GRADE"].unique()): #check for backlogs in particular semester
+            if semester==completed_semester: #check for backlogs in particular semester
                 backlogs = True
                 record = [semester , "-", "-"]
                 result.append(record)
