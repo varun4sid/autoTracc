@@ -1,5 +1,11 @@
 import streamlit as st
+from src.pagerequests import *
+from src.attendance import *
+from src.cgpa import *
 
+st.set_page_config(
+    page_title = "autoTracc",
+)
 
 if "page" not in st.session_state:
     st.session_state.page = "login_page"
@@ -9,10 +15,7 @@ if "credentials" not in st.session_state:
     st.session_state.password = None
 
 def loginPage():
-    white_space_left, title, white_space_right = st.columns([5,5,4])
-
-    with title:
-        st.title("autoTracc")
+    st.markdown(f"<h1 style='text-align: center;'>autoTracc</h1>", unsafe_allow_html=True)
 
     white_space_left, login_form, white_space_right = st.columns([1,4,1])
 
@@ -29,16 +32,33 @@ def loginPage():
                 if not all( [st.session_state.rollno.strip(), st.session_state.password.strip()] ):
                     st.warning("Please fill all the details!")
                 else:
-                    
-                    st.session_state.page = "dashboard"
-                    st.rerun()
+                    attendance_home_page = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+                    if attendance_home_page:
+                        st.session_state.page = "dashboard"
+                        st.session_state.attendance_session = attendance_home_page
+
+                        courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
+                        st.session_state.courses_session = courses_home_page
+                        st.rerun()
+                    else:
+                        st.warning("Invalid Credentials! Try again!")
 
 
-def dashBoard():
-    st.write("Hola")
+def dashBoardPage():
+    st.markdown("<h1 style='text-align: center;'>Welcome to autoTracc!</h1>", unsafe_allow_html=True)
+    st.divider()
+
+    #Extract the required data from the homepages
+    attendance_data = getStudentAttendance(st.session_state.attendance_session)
+    courses_data, completed_semester = getStudentCourses(st.session_state.courses_session)
+    cgpa_data = getCGPA(courses_data, completed_semester)
+
+    st.dataframe(getAffordableLeaves(attendance_data))
+    st.dataframe(cgpa_data)
+
 
 if st.session_state.page == "login_page":
     loginPage()
 
-elif st.session_state.page == "dashboard":
-    dashBoard()
+if st.session_state.page == "dashboard":
+    dashBoardPage()

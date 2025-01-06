@@ -103,4 +103,4 @@ def getCGPA(data, completed_semester):
     
     result = DataFrame(result, columns=result_headers)
 
-    return result.to_string()
+    return result

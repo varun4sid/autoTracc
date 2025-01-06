@@ -1,25 +1,6 @@
 from requests import Session
 from bs4 import BeautifulSoup
 
-def getUserInput():
-    #check rollno input
-    while True:
-        rollno = input("Enter Roll No : ")
-        if not rollno.strip():
-            print("Invalid ID! Try again!")
-        else:
-            break
-    
-    #check password input
-    while True:
-        password = input("Enter Password : ")
-        if not password.strip():
-            print("Empty password detected! Try again!")
-        else:
-            break
-
-    return rollno,password
-
 
 def getHomePageAttendance(rollno, password):
     #Start a session
@@ -93,11 +74,3 @@ def getHomePageCGPA(rollno, password):
 
     return session
     
-
-def checkUserInput():
-    while True:
-        #Get user details
-        rollno, password = getUserInput()
-        attendance_home_page = getHomePageAttendance(rollno, password)
-        if attendance_home_page:
-            return rollno, password, attendance_home_page

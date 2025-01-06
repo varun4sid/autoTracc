@@ -37,16 +37,7 @@ def getStudentAttendance(session):
 def getAffordableLeaves(data):
     from pandas import DataFrame
     
-    #Get custom percentage that user wants to maintain
-    while True:
-        try:
-            custom_percentage = int(input("Enter attendance percentage you would like to maintain : "))
-            if custom_percentage<0 or custom_percentage>100:
-                print("Invalid input! Try again!")
-            else:
-                break
-        except ValueError:
-            print("Invalid input! Try again!")
+    custom_percentage =90
 
     #Declare an empty result table with header
     result = []
@@ -66,8 +57,8 @@ def getAffordableLeaves(data):
         result.append(row)
 
     df = DataFrame(result,columns=result_header)
-    print(df.to_string())
-    print("NOTE : '-' next to number denotes number of classes that must be attended to meet the respective percentage\n")
+
+    return df
     
 
 def calculateLeaves(classes_present , classes_total , maintenance_percentage):
