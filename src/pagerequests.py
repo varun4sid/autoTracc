@@ -74,3 +74,16 @@ def getHomePageCGPA(rollno, password):
 
     return session
     
+
+def getUsername(session):
+    #Get a page with username
+    name_page_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/AttendanceMenu" 
+    name_page = session.get(name_page_url)
+
+    #Get the html of the page
+    name_page_soup = BeautifulSoup(name_page.text, "lxml")
+
+    #Get the username
+    username = name_page_soup.find("span",{"class":"name"})
+
+    return username.string

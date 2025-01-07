@@ -45,16 +45,25 @@ def loginPage():
 
 
 def dashBoardPage():
-    st.markdown("<h1 style='text-align: center;'>Welcome to autoTracc!</h1>", unsafe_allow_html=True)
+    user_name = getUsername(st.session_state.attendance_session)
+    st.markdown(f"<h1 style='text-align: center;'>Welcome {user_name}!</h1>", unsafe_allow_html=True)
     st.divider()
 
-    #Extract the required data from the homepages
+    attendance_tab, cgpa_tab = st.tabs(["Attendance","CGPA"])
+
     attendance_data = getStudentAttendance(st.session_state.attendance_session)
+
     courses_data, completed_semester = getStudentCourses(st.session_state.courses_session)
     cgpa_data = getCGPA(courses_data, completed_semester)
 
-    st.dataframe(getAffordableLeaves(attendance_data))
-    st.dataframe(cgpa_data)
+    with attendance_tab:
+        st.dataframe(getAffordableLeaves(attendance_data))
+        st.write("NOTE : '-' next to number denotes number of classes that must be attended to meet the respective percentage\n")
+            
+    with cgpa_tab:
+        st.dataframe(cgpa_data)
+        st.write("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+    
 
 
 if st.session_state.page == "login_page":
