@@ -121,36 +121,50 @@ def dashBoardPage():
         cgpa_data = getCGPA(courses_data, completed_semester)
 
         with attendance_tab:
-            #Create a slider
-            st.session_state.custom_percentage = st.slider(
-                label = "Percentage you would like to maintain:",
-                min_value = 50,
-                max_value = 99,
-                value = 75,
-                on_change=updateTable()
-            )
+            try:
+                #Create a slider
+                st.session_state.custom_percentage = st.slider(
+                    label = "Percentage you would like to maintain:",
+                    min_value = 50,
+                    max_value = 99,
+                    value = 75,
+                    on_change=updateTable()
+                )
 
-            #Update the table after slider event
-            updateTable()
+                #Update the table after slider event
+                updateTable()
 
-            #Display the table after latest update
-            white_space_left, table, white_space_right = st.columns([1,7,1])
-            with table:
-                st.dataframe(st.session_state.attendance_table,hide_index=True)
-                st.write("LAST UPDATED : ", updated_date)    
+                #Display the table after latest update
+                white_space_left, table, white_space_right = st.columns([1,7,1])
+                with table:
+                    st.dataframe(st.session_state.attendance_table,hide_index=True)
+                    st.write("LAST UPDATED : ", updated_date)    
 
-            #Display notes for the user
+                #Display notes for the user
+                
+                st.write("NOTE : '-' next to number denotes number of classes that must be attended to meet the respective percentage\n")
             
-            st.write("NOTE : '-' next to number denotes number of classes that must be attended to meet the respective percentage\n")
-            
+            except:
+                st.warning("""
+                    Attendance data unavailable at the moment. Try :
+                    > Reloading the page and login again
+                    > Check whether attendance is "On Process..."
+                """)
+
         #Display tab for CGPA details
         with cgpa_tab:
-            white_space_left, table, white_space_right = st.columns([1,2,1])
-            
-            #Display the table
-            with table:
-                st.dataframe(cgpa_data,hide_index=True)
-            st.write("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+            try:
+                white_space_left, table, white_space_right = st.columns([1,2,1])
+                
+                #Display the table
+                with table:
+                    st.dataframe(cgpa_data,hide_index=True)
+                st.write("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+            except:
+                st.warning("""
+                    Courses data unavailable at the moment. This is likely to be a server issue.
+                    Try again after some time.
+                """)
     
     st.divider()
 

@@ -34,7 +34,6 @@ def getHomePageAttendance(rollno, password):
     if check:
         return session
     else:
-        print("INVALID CREDENTIALS!")
         return False
 
 
