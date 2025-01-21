@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+from pandas import DataFrame
+
 
 def getStudentAttendance(session):
     #Get the student attendance page using the current session
@@ -36,7 +38,7 @@ def getStudentAttendance(session):
 
     #Add the initials to the course code column
     for row in data[1:]:
-        row[0] = ''.join( [ row[0], ' - ', course_map[row[0]] ] )
+        row[0] = ''.join( [ row[0], '   -   ', course_map[row[0]] ] )
 
     return data
 
@@ -65,8 +67,10 @@ def getCourseNames(session):
         #Initialize an empty list
         course_initials = []
         for words in course_name.text.split():
-            #Append the first letter of each word in course name
-            course_initials.append(words[0])
+            #Check for special characters
+            if ord(words[0]) in list(range(65,91)):
+                #Append the first letter of each word in course name
+                course_initials.append(words[0])
 
         #Convert the list of initials to string and map it to the course code
         course_map[course_code.text] = ''.join(course_initials)
@@ -75,8 +79,6 @@ def getCourseNames(session):
 
 
 def getAffordableLeaves(data,custom_percentage):
-    from pandas import DataFrame
-
     #Declare an empty result table
     result = []
 
@@ -94,7 +96,7 @@ def getAffordableLeaves(data,custom_percentage):
         result.append(row)
 
     #Create a dataframe from the result list with headers
-    result_header = ["COURSE_CODE",f"RECOMMENDED_LEAVES({custom_percentage}%)"]
+    result_header = ["COURSE_CODE",f"AFFORDABLE_LEAVES({custom_percentage}%)"]
     df = DataFrame(result,columns=result_header)
 
     return df

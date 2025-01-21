@@ -2,6 +2,7 @@ import streamlit as st
 from src.pagerequests import *
 from src.attendance import *
 from src.cgpa import *
+from src.exams import *
 
 def initializeSessionState():
     if "page" not in st.session_state:
@@ -105,11 +106,11 @@ def dashBoardPage():
     st.markdown(f"<h1 style='text-align: center;'>Welcome {user_name}!</h1>", unsafe_allow_html=True)
     st.divider()
 
-    white_space_left, tabs, white_space_right = st.columns([1,5,1])
+    white_space_left, tabs, white_space_right = st.columns([1,60,1])
     with tabs:
 
         #Separate attendance and CGPA details using tabs
-        attendance_tab, cgpa_tab = st.tabs(["Attendance","CGPA"])
+        attendance_tab, cgpa_tab, exams_tab = st.tabs(["Attendance","CGPA","Exams"])
 
         #Compute the necessary details and store in session state
         st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
@@ -120,6 +121,9 @@ def dashBoardPage():
         courses_data, completed_semester = getStudentCourses(st.session_state.courses_session)
         cgpa_data = getCGPA(courses_data, completed_semester)
 
+        schedule_data = getExamSchedule(st.session_state.attendance_session)
+
+        #Display attendance details
         with attendance_tab:
             try:
                 #Create a slider
@@ -135,13 +139,12 @@ def dashBoardPage():
                 updateTable()
 
                 #Display the table after latest update
-                white_space_left, table, white_space_right = st.columns([1,7,1])
+                white_space_left, table, white_space_right = st.columns([1,2,1])
                 with table:
-                    st.dataframe(st.session_state.attendance_table,hide_index=True)
-                    st.write("LAST UPDATED : ", updated_date)    
+                    st.dataframe(st.session_state.attendance_table, hide_index = True)
+                    st.markdown(f"<h5 style='color:magenta;'>LAST UPDATED : {updated_date}<br><br></h5>", unsafe_allow_html=True)
 
                 #Display notes for the user
-                
                 st.write("NOTE : '-' next to number denotes number of classes that must be attended to meet the respective percentage\n")
             
             except:
@@ -158,20 +161,36 @@ def dashBoardPage():
                 
                 #Display the table
                 with table:
-                    st.dataframe(cgpa_data,hide_index=True)
+                    st.dataframe(cgpa_data, hide_index = True)
+
                 st.write("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
             except:
                 st.warning("""
                     Courses data unavailable at the moment. This is likely to be a server issue.
                     Try again after some time.
                 """)
+
+        #Display tab for Exam schedule
+        with exams_tab:
+            try:
+                white_space_left, table, white_space_right = st.columns([1,4,1])
+                
+                #Display the table
+                with table:
+                    st.dataframe(schedule_data, hide_index = True)
+            except:
+                st.warning("Exam schedule not found!")
     
     st.divider()
 
     #Add a logout button
-    white_space_right, logout, white_space_right = st.columns([4,3,3])
+    white_space_right, logout, star, white_space_right = st.columns([5,2,2,5])
     with logout:
         logout_button = st.button("Logout")
+
+    #Link to github page
+    with star:
+        star_button = st.link_button("Star :star:","https://github.com/varun4sid/autoTracc")
     
     #On clicking logout button session state is reset to login page and script is rerun
     if logout_button:
