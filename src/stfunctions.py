@@ -1,4 +1,5 @@
 import streamlit as st
+
 from src.pagerequests import *
 from src.attendance import *
 from src.cgpa import *
@@ -116,7 +117,11 @@ def dashBoardPage():
         st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
         
         #Get the date when attendance when recently updated
-        updated_date = st.session_state.attendance_data[1][9]
+        try:
+            updated_date = st.session_state.attendance_data[1][9]
+            attendance_available = True
+        except:
+            attendance_available = False
 
         courses_data, completed_semester = getStudentCourses(st.session_state.courses_session)
         cgpa_data = getCGPA(courses_data, completed_semester)
@@ -125,7 +130,7 @@ def dashBoardPage():
 
         #Display attendance details
         with attendance_tab:
-            try:
+            if attendance_available:
                 #Create a slider
                 st.session_state.custom_percentage = st.slider(
                     label = "Percentage you would like to maintain:",
@@ -142,15 +147,15 @@ def dashBoardPage():
                 white_space_left, table, white_space_right = st.columns([1,2,1])
                 with table:
                     st.dataframe(st.session_state.attendance_table, hide_index = True)
-                    st.markdown(f"<h5 style='color:magenta;'>LAST UPDATED : {updated_date}<br><br></h5>", unsafe_allow_html=True)
+                    st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {updated_date}<br><br></h5>", unsafe_allow_html=True)
 
                 #Display notes for the user
                 st.write("NOTE : '-' next to number denotes number of classes that must be attended to meet the respective percentage\n")
             
-            except:
+            else:
                 st.warning("""
                     Attendance data unavailable at the moment. Try :
-                    > Reloading the page and login again
+                    > Reloading the page and login again.\n
                     > Check whether attendance is "On Process..."
                 """)
 
@@ -178,6 +183,7 @@ def dashBoardPage():
                 #Display the table
                 with table:
                     st.dataframe(schedule_data, hide_index = True)
+
             except:
                 st.warning("Exam schedule not found!")
     
