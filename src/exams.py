@@ -14,7 +14,7 @@ def getExamSchedule(session):
     content_flag = schedule_page_soup.find("div",{"class":"Test-card"})
 
     if not content_flag:
-        return
+        return False
 
     #Get the html of each exam's content
     exams_soup = schedule_page_soup.find_all("div",{"class":"text-left"})

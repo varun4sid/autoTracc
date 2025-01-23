@@ -123,8 +123,13 @@ def dashBoardPage():
         except:
             attendance_available = False
 
-        courses_data, completed_semester = getStudentCourses(st.session_state.courses_session)
-        cgpa_data = getCGPA(courses_data, completed_semester)
+        #Get the cgpa data and handle exceptions 
+        try:
+            courses_data, completed_semester = getStudentCourses(st.session_state.courses_session)
+            cgpa_data = getCGPA(courses_data, completed_semester)
+            cgpa_available = True
+        except:
+            cgpa_available = False
 
         schedule_data = getExamSchedule(st.session_state.attendance_session)
 
@@ -161,7 +166,7 @@ def dashBoardPage():
 
         #Display tab for CGPA details
         with cgpa_tab:
-            try:
+            if cgpa_available:
                 white_space_left, table, white_space_right = st.columns([1,2,1])
                 
                 #Display the table
@@ -169,7 +174,7 @@ def dashBoardPage():
                     st.dataframe(cgpa_data, hide_index = True)
 
                 st.write("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
-            except:
+            else:
                 st.warning("""
                     Courses data unavailable at the moment. This is likely to be a server issue.
                     Try again after some time.
