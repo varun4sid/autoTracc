@@ -18,7 +18,7 @@ Neither the user's credentials nor their fetched data is stored or acquired by m
 
 # Demo
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/aP-DL9kS5bk?si=p9I_2C1RW_TBlb_2" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[Click here to watch a demo](https://youtu.be/aP-DL9kS5bk?si=P5ka4G6GpPHUALe_)
 
 
 # Acknowledgements

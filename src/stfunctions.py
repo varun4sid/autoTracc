@@ -63,10 +63,7 @@ def loginPage():
             st.session_state.rollno   = st.text_input("RollNo:")
             st.session_state.password = st.text_input("Password:" ,type="password")
 
-            #Center justify submit button
-            white_space_right, submit_button, white_space_right = st.columns([4,3,3])
-            with submit_button:
-                submit_button = st.form_submit_button()
+            submit_button = st.form_submit_button()
 
             #Following code is executed when button is clicked
             if submit_button:
@@ -76,7 +73,6 @@ def loginPage():
                     st.warning("Please fill all the details!")
                 
                 else:
-                    
 
                     #Check if credentials are correct by requesting user data from studzone website
                     attendance_home_page = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
@@ -99,6 +95,8 @@ def loginPage():
                         st.warning("Invalid Credentials! Try again!")
         #Display the disclaimer
         displayLoginNote()
+
+        st.link_button("Demo","https://youtu.be/aP-DL9kS5bk?si=P5ka4G6GpPHUALe_")
     
 
 def dashBoardPage():
