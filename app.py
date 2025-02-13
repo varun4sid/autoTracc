@@ -23,3 +23,6 @@ if st.session_state.page == "login_page":
 
 if st.session_state.page == "dashboard":
     dashBoardPage()
+    
+if st.session_state.page == "demo":
+    demoPage()

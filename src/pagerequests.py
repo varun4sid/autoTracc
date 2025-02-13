@@ -1,4 +1,6 @@
 from requests import Session
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from bs4 import BeautifulSoup
 
 
@@ -6,6 +8,18 @@ def getHomePageAttendance(rollno, password):
     #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone"
     session = Session()
+    
+    #Define a retry strategy to handle server-side request overload
+    # retry_strategy = Retry(
+    #     total = 3,
+    #     backoff_factor = 1,
+    #     allowed_methods = ["GET","POST"]
+    # )   
+    
+    # Mount the retry strategy to the session
+    # adapter = HTTPAdapter(max_retries = retry_strategy)
+    # session.mount("http://", adapter)
+    # session.mount("https://", adapter)
 
     #Get the login page
     login_page = session.get(login_url)

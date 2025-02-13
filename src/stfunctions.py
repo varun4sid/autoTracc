@@ -1,4 +1,6 @@
 import streamlit as st
+import pandas as pd
+import csv
 
 from src.pagerequests import *
 from src.attendance import *
@@ -29,6 +31,9 @@ def initializeSessionState():
 
     if "courses_session" not in st.session_state:
         st.session_state.courses_session = ""
+        
+    if "updated_date" not in st.session_state:
+        st.session_state.updated_data = ""
 
 
 def displayLoginNote():
@@ -37,9 +42,9 @@ def displayLoginNote():
         <div>
             <link rel="stylesheet" 
             href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=encrypted"/>
-            <p style = 'text-align:center;opacity:0.7;'>
-                    <span style='display:inline-block;margin:4px 0 0 0;'class="material-symbols-outlined">encrypted</span>
-                    <span style='display:inline-block;margin:0px 0px 0px 0px;'>Your credentials and data are not stored!<span>
+            <p style = 'text-align:center;opacity:0.7;display:flex;align-items:center;justify-content:center;'>
+                    <span class="material-symbols-outlined">encrypted</span>
+                    <span>Your credentials and data are not stored!</span>
             </p>
         </div>
     """,
@@ -93,10 +98,15 @@ def loginPage():
                     #If credentials incorrect then warn the user without leaving login page
                     else:
                         st.warning("Invalid Credentials! Try again!")
+
         #Display the disclaimer
         displayLoginNote()
 
-        st.link_button("Demo","https://youtu.be/aP-DL9kS5bk?si=P5ka4G6GpPHUALe_")
+        demo_button = st.button("Demo")
+        
+        if demo_button:
+            st.session_state.page = "demo"
+            st.rerun()
     
 
 def dashBoardPage():
@@ -111,9 +121,9 @@ def dashBoardPage():
     #Compute the necessary details and store in session state
     st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
     
-    #Get the date when attendance when recently updated
+    #Get the date when attendance was recently updated
     try:
-        updated_date = st.session_state.attendance_data[1][9]
+        st.session_state.updated_date = st.session_state.attendance_data[1][9]
         attendance_available = True
     except:
         attendance_available = False
@@ -130,27 +140,8 @@ def dashBoardPage():
 
     #Display attendance details
     with attendance_tab:
-
         if attendance_available:
-            #Create a slider
-            st.session_state.slider = st.slider(
-                label = "Percentage you would like to maintain:",
-                min_value = 50,
-                max_value = 99,
-                value = 75,
-            )
-
-            #Update the table after slider event
-            st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.slider)
-
-            #Display the table after latest update
-            st.dataframe(st.session_state.attendance_table, hide_index = True)
-            st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {updated_date}<br><br></h5>", unsafe_allow_html=True)
-
-            #Display notes for the user
-            st.warning("""NOTE : '-' next to number of leaves denotes classes must be attended
-                       to meet the corresponding percentage without skipping classes""")
-        
+            attendanceTab()
         else:
             st.warning("""
                 Attendance data unavailable at the moment. Try :
@@ -176,6 +167,69 @@ def dashBoardPage():
         except:
             st.warning("Exam schedule not found!")
     
+    dashBoardFooter()
+        
+        
+def demoPage():
+    st.title("Welcome, Demo!")
+    
+    st.divider()
+    
+    #Separate attendance and CGPA details using tabs
+    attendance_tab, cgpa_tab, exams_tab = st.tabs(["Attendance","CGPA","Exams"])
+    
+    with open("./demo/attendance.csv","r") as file:
+        csv_reader = csv.reader(file)
+        st.session_state.attendance_data = list(csv_reader)
+        st.session_state.updated_date = st.session_state.attendance_data[1][9]
+        
+    with open("./demo/cgpa.csv","r") as file:
+        csv_reader = csv.reader(file)
+        cgpa_data = list(csv_reader)
+        df_headers = ["SEMESTER","GPA","CGPA"]
+        cgpa_df = DataFrame(cgpa_data, columns=df_headers)
+        
+    with open("./demo/exams.csv","r") as file:
+        csv_reader = csv.reader(file)
+        schedule_data = list(csv_reader)
+        df_headers = ["COURSE_CODE","DATE","TIME"]
+        schedule_df = DataFrame(schedule_data, columns=df_headers)
+        
+    with attendance_tab:
+        attendanceTab()
+            
+    with cgpa_tab:
+        st.dataframe(cgpa_df, hide_index = True)
+        st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+        
+    with exams_tab:
+        st.dataframe(schedule_df, hide_index = True)
+        
+    dashBoardFooter()
+    
+
+def attendanceTab():
+    #Create a slider
+    st.session_state.slider = st.slider(
+        label = "Percentage you would like to maintain:",
+        min_value = 50,
+        max_value = 99,
+        value = 75,
+    )
+
+    #Update the table after slider event
+    st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.slider)
+
+    #Display the table after latest update
+    st.dataframe(st.session_state.attendance_table, hide_index = True)
+    st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {st.session_state.updated_date}<br><br></h5>", unsafe_allow_html=True)
+
+    #Display notes for the user
+    st.warning("""NOTE : '-' next to number of leaves denotes classes must be attended
+                to meet the corresponding percentage without skipping classes""")
+
+
+def dashBoardFooter():
     st.divider()
 
     #Add a logout button
@@ -185,7 +239,7 @@ def dashBoardPage():
 
     #Link to github page
     with star:
-        star_button = st.link_button("Star :star:","https://github.com/varun4sid/autoTracc")
+        st.link_button("Star :star:","https://github.com/varun4sid/autoTracc")
     
     #On clicking logout button session state is reset to login page and script is rerun
     if logout_button:
