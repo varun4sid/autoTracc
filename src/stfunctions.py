@@ -6,6 +6,7 @@ from src.pagerequests import *
 from src.attendance import *
 from src.cgpa import *
 from src.exams import *
+from src.internals import *
 
 def initializeSessionState():
     if "page" not in st.session_state:
@@ -17,8 +18,8 @@ def initializeSessionState():
     if "password" not in st.session_state:
         st.session_state.password = ""
 
-    if "slider" not in st.session_state:
-        st.session_state.slider = 75
+    if "attendance_slider" not in st.session_state:
+        st.session_state.attendance_slider = 75
 
     if "attendance_result" not in st.session_state:
         st.session_state.attendance_table = ""
@@ -34,7 +35,12 @@ def initializeSessionState():
         
     if "updated_date" not in st.session_state:
         st.session_state.updated_data = ""
-
+        
+    if "internals_slider" not in st.session_state:
+        st.session_state.internals_slider = 29
+        
+    if "target_slider" not in st.session_state:
+        st.session_state.target_slider = 50
 
 def displayLoginNote():
     st.markdown(
@@ -115,8 +121,8 @@ def dashBoardPage():
     st.title(f"Welcome {user_name}!")
     st.divider()
 
-    #Separate attendance and CGPA details using tabs
-    attendance_tab, cgpa_tab, exams_tab = st.tabs(["Attendance","CGPA","Exams"])
+    #Separate the features with tabs
+    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
 
     #Compute the necessary details and store in session state
     st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
@@ -166,6 +172,10 @@ def dashBoardPage():
             st.dataframe(schedule_data, hide_index = True)
         except:
             st.warning("Exam schedule not found!")
+            
+    #Display tab for internal marks
+    with internals_tab:
+        targetScore()
     
     dashBoardFooter()
         
@@ -176,7 +186,7 @@ def demoPage():
     st.divider()
     
     #Separate attendance and CGPA details using tabs
-    attendance_tab, cgpa_tab, exams_tab = st.tabs(["Attendance","CGPA","Exams"])
+    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
     
     with open("./demo/attendance.csv","r") as file:
         csv_reader = csv.reader(file)
@@ -205,12 +215,15 @@ def demoPage():
     with exams_tab:
         st.dataframe(schedule_df, hide_index = True)
         
+    with internals_tab:
+        targetScore()
+        
     dashBoardFooter()
     
 
 def attendanceTab():
     #Create a slider
-    st.session_state.slider = st.slider(
+    st.session_state.attendance_slider = st.slider(
         label = "Percentage you would like to maintain:",
         min_value = 50,
         max_value = 99,
@@ -218,7 +231,7 @@ def attendanceTab():
     )
 
     #Update the table after slider event
-    st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.slider)
+    st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.attendance_slider)
 
     #Display the table after latest update
     st.dataframe(st.session_state.attendance_table, hide_index = True)
@@ -245,3 +258,36 @@ def dashBoardFooter():
     if logout_button:
         st.session_state.page = "login_page"
         st.rerun()
+        
+        
+def targetScore():
+    #st.warning("Automated tracking for your courses coming soon...")
+    st.warning("Your internal marks are unavailable at the moment...")
+    
+    st.session_state.internals_slider = st.slider(
+        label = "Internal marks(for 50): ",
+        min_value = 0,
+        max_value = 50,
+        value = 29
+    )
+    
+    st.session_state.target_slider = st.slider(
+        label = "Enter your target final marks(for 100): ",
+        min_value = 50,
+        max_value = 100,
+        value = 50
+    )
+    
+    target_score = calculateTarget(st.session_state.internals_slider,st.session_state.target_slider)
+    if target_score != '-':
+        result_string = "You need to score atleast "
+        result_string += str(target_score)
+        result_string += " in end-semester exam to get a final score of "
+        result_string += str(st.session_state.target_slider)
+        st.markdown(f"<h5 style='color:rgb(0, 255, 0);'><br><br>{result_string}<br><br></h5>", unsafe_allow_html=True)
+    else:
+        result_string = "You can't get a final score of "
+        result_string += str(st.session_state.target_slider)
+        result_string += " with an internals score of "
+        result_string += str(st.session_state.internals_slider)
+        st.markdown(f"<h5 style='color:rgb(255, 0, 0);'><br><br>{result_string}<br><br></h5>", unsafe_allow_html=True)
