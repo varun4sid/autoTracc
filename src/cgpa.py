@@ -82,7 +82,7 @@ def getCGPA(data, completed_semester):
     for semester in range(1,most_recent_semester+1): #index from 1st to most recent semester
         if not backlogs:
             courses = df.loc[df["COURSE_SEM"] == semester] #get all courses of particular semester
-            if semester==completed_semester: #check for backlogs in particular semester
+            if semester == completed_semester: #check for backlogs in particular semester
                 backlogs = True
                 record = [semester , "-", "-"]
                 result.append(record)
@@ -93,8 +93,12 @@ def getCGPA(data, completed_semester):
                 overall_product += semester_product
                 overall_credits += semester_credits
 
-                semester_gpa = float(semester_product / semester_credits)
+                semester_gpa  = float(semester_product / semester_credits)
                 semester_cgpa = float(overall_product / overall_credits)
+                
+                semester_gpa = '{:.5f}'.format(semester_gpa)[:-1]
+                semester_cgpa = '{:.5f}'.format(semester_cgpa)[:-1]
+                
                 record = [semester , semester_gpa , semester_cgpa]
                 result.append(record)    
         else:

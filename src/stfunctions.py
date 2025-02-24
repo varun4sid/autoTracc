@@ -25,7 +25,7 @@ def initializeSessionState():
         st.session_state.attendance_table = ""
 
     if "attendance_session" not in st.session_state:
-        st.session_state.attendance_session = ""
+        st.session_state.attendance_session = 0
 
     if "attendance_data" not in st.session_state:
         st.session_state.attendance_data = ""
