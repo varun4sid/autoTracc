@@ -1,10 +1,13 @@
 from selenium import webdriver
-import tempfile
+import os
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
+from webdriver_manager.chrome import ChromeDriverManager
 import streamlit as st
+
 
 def intermediateForm(rollno,password):
     #Initiate a headless browser session
@@ -14,9 +17,10 @@ def intermediateForm(rollno,password):
     option.add_argument("--disable-gpu")
     option.add_argument("--no-sandbox")
     option.add_argument("--disable-dev-shm-usage")
-    temp_user_data_dir = tempfile.mkdtemp()
-    option.add_argument(f"--user-data-dir={temp_user_data_dir}")
-    browser = webdriver.Chrome(options=option)
+    
+    service = Service(ChromeDriverManager().install())
+    browser = webdriver.Chrome(service=service,options=option)
+    
     browser.get("https://ecampus.psgtech.ac.in/studzone")
     
     #Instantiate a wait sequence for page rendering

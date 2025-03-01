@@ -29,6 +29,7 @@ pydeck==0.9.1
 Pygments==2.19.1
 PySocks==1.7.1
 python-dateutil==2.9.0.post0
+python-dotenv==1.0.1
 pytz==2024.2
 referencing==0.35.1
 requests==2.32.3
@@ -50,5 +51,6 @@ typing_extensions==4.12.2
 tzdata==2024.2
 urllib3==2.3.0
 watchdog==6.0.0
+webdriver-manager==4.0.2
 websocket-client==1.8.0
 wsproto==1.2.0
