@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 import csv
 
 from src.pagerequests import *
@@ -7,6 +6,7 @@ from src.attendance import *
 from src.cgpa import *
 from src.exams import *
 from src.internals import *
+from src.feedback import *
 
 def initializeSessionState():
     if "page" not in st.session_state:
@@ -41,6 +41,7 @@ def initializeSessionState():
         
     if "target_slider" not in st.session_state:
         st.session_state.target_slider = 50
+
 
 def displayLoginNote():
     st.markdown(
@@ -84,26 +85,25 @@ def loginPage():
                     st.warning("Please fill all the details!")
                 
                 else:
-
+                    with st.spinner("Fetching user data..."):
                     #Check if credentials are correct by requesting user data from studzone website
-                    attendance_home_page = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+                        attendance_home_page = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
 
-                    #If credentials are correct we get the homepage
-                    if attendance_home_page:
+                        #If credentials are correct we get the homepage
+                        if attendance_home_page:
+                            #Change session state and store the session
+                            st.session_state.page = "dashboard"
+                            st.session_state.attendance_session = attendance_home_page
 
-                        #Change session state and store the session
-                        st.session_state.page = "dashboard"
-                        st.session_state.attendance_session = attendance_home_page
+                            courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
+                            st.session_state.courses_session = courses_home_page
 
-                        courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
-                        st.session_state.courses_session = courses_home_page
-
-                        #Rerun the script with updated session state to go to the next page
-                        st.rerun()
-                    
-                    #If credentials incorrect then warn the user without leaving login page
-                    else:
-                        st.warning("Invalid Credentials! Try again!")
+                            #Rerun the script with updated session state to go to the next page
+                            st.rerun()
+                        
+                        #If credentials incorrect then warn the user without leaving login page
+                        else:
+                            st.warning("Invalid Credentials! Try again!")
 
         #Display the disclaimer
         displayLoginNote()
@@ -122,7 +122,7 @@ def dashBoardPage():
     st.divider()
 
     #Separate the features with tabs
-    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
+    attendance_tab, cgpa_tab, exams_tab, internals_tab,feedback_tab = st.tabs(["Attendance","CGPA","Exams","Internals","Feedback"])
 
     #Compute the necessary details and store in session state
     st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
@@ -176,16 +176,23 @@ def dashBoardPage():
     #Display tab for internal marks
     with internals_tab:
         targetScore()
-    
+        
+    with feedback_tab:
+        st.write("Autofill your feedback forms with just one click!")
+        intermediate_form = st.button("Intermediate")
+        
+        if intermediate_form:
+            with st.spinner("Filling the form... This takes a few minutes... Do not close the tab"):
+                intermediateForm(st.session_state.rollno,st.session_state.password)
+            st.write("Done!")
+                
     dashBoardFooter()
         
         
 def demoPage():
     st.title("Welcome, Demo!")
-    
     st.divider()
     
-    #Separate attendance and CGPA details using tabs
     attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
     
     with open("./demo/attendance.csv","r") as file:
@@ -246,7 +253,7 @@ def dashBoardFooter():
     st.divider()
 
     #Add a logout button
-    white_space_right, logout, star, white_space_right = st.columns([5,2,2,5])
+    white_space_left, logout, star, white_space_right = st.columns([5,2,2,5])
     with logout:
         logout_button = st.button("Logout")
 

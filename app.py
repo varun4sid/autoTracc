@@ -14,7 +14,7 @@ if "init" not in st.session_state:
 st.markdown("""
             <style>
                 [data-testid='stHeaderActionElements'] {display: none;}
-                html {text-align: center;}
+                body {text-align: center;}
             </style>""",unsafe_allow_html=True)
     
 #Call the corresponding function according to session_state
