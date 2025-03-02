@@ -178,13 +178,12 @@ def dashBoardPage():
         targetScore()
         
     with feedback_tab:
-        st.write("Autofill your feedback forms with just one click!")
+        st.write("##### Autofill your feedback forms with just one click!")
         intermediate_form = st.button("Intermediate")
         
         if intermediate_form:
-            with st.spinner("Filling the form... This takes a few minutes... Do not close the tab"):
-                intermediateForm(st.session_state.rollno,st.session_state.password)
-            st.write("Done!")
+            intermediateForm(st.session_state.rollno,st.session_state.password)
+            st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
                 
     dashBoardFooter()
         
