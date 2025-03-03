@@ -53,22 +53,21 @@ def autoFeedback(index,rollno,password):
     browser.execute_script("arguments[0].click();",feedbacks[index])
     
     progress_bar.empty()
-    try:
-        if index == 0:
-            endsemForm(browser)
-        else:
-            intermediateForm(browser)
-            
-        st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
-    except:
-        st.warning("Feedback form not found!")
+    if index == 0:
+        endsemForm(browser)
+    else:
+        intermediateForm(browser)
     
     
-
 def intermediateForm(browser):
     progress_bar = st.progress(0,text = "Fetching feedback page...")
+    
     #Get the courses
     courses = browser.find_elements(By.CLASS_NAME,"intermediate-body")
+
+    if len(courses) == 0:
+        progress_bar.empty()
+        raise
     
     #Instantiate a wait sequence for page rendering
     wait = WebDriverWait(browser,10)
@@ -78,10 +77,13 @@ def intermediateForm(browser):
         courses = browser.find_elements(By.CLASS_NAME,"intermediate-body")
         course_names = browser.find_elements(By.CSS_SELECTOR,"h6.course")
         progress_bar.progress((course)/len(courses),text=course_names[course].text+"...")  
-        browser.execute_script("arguments[0].click();",courses[course])
+        browser.execute_script("arguments[0].scrollIntoView(); arguments[0].click();", courses[course])
+        
+        questions = browser.find_element(By.CSS_SELECTOR,"div.bottom-0").text
+        questions = int(questions.split()[-1])
         
         clicks = 0
-        while clicks < 12:
+        while clicks < questions:
             try:
                 radio_button = wait.until(EC.element_to_be_clickable((By.XPATH,f"//label[@for='radio-{clicks+1}-1']")))
                 browser.execute_script("arguments[0].click();",radio_button)
@@ -96,6 +98,7 @@ def intermediateForm(browser):
         browser.execute_script("arguments[0].click();",back)
     
     browser.quit()
+    progress_bar.empty()
     
     
 def endsemForm(browser):

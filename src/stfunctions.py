@@ -183,62 +183,22 @@ def dashBoardPage():
             
     #Display tab for internal marks
     with internals_tab:
-        try:
-            st.session_state.internals_data = getInternals(st.session_state.attendance_session)
-            internalsTab()
-        except:
-            st.warning("Your internal marks are unavailable at the moment")
+        table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
+        with table_tab:
+            try:
+                st.session_state.internals_data = getInternals(st.session_state.attendance_session)
+                internalsTab()
+            except:
+                st.warning("Your internal marks are unavailable at the moment")
+                
+        with custom_tab:
+            customScore()
         
     with feedback_tab:
         feedbackTab()
                 
     dashBoardFooter()
-        
-        
-def demoPage():
-    st.title("Welcome, Demo!")
-    st.divider()
-    
-    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
-    
-    with open("./demo/attendance.csv","r") as file:
-        csv_reader = csv.reader(file)
-        st.session_state.attendance_data = list(csv_reader)
-        st.session_state.updated_date = st.session_state.attendance_data[1][9]
-        
-    with open("./demo/cgpa.csv","r") as file:
-        csv_reader = csv.reader(file)
-        cgpa_data = list(csv_reader)
-        df_headers = ["SEMESTER","GPA","CGPA"]
-        cgpa_df = DataFrame(cgpa_data, columns=df_headers)
-        
-    with open("./demo/exams.csv","r") as file:
-        csv_reader = csv.reader(file)
-        schedule_data = list(csv_reader)
-        df_headers = ["COURSE_CODE","DATE","TIME"]
-        schedule_df = DataFrame(schedule_data, columns=df_headers)
-        
-    with attendance_tab:
-        attendanceTab()
-            
-    with cgpa_tab:
-        st.dataframe(cgpa_df, hide_index = True)
-        st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
-        
-    with exams_tab:
-        st.dataframe(schedule_df, hide_index = True)
-        
-    with internals_tab:
-        table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
-        
-        with table_tab:
-            st.write("tab2")
-            
-        with custom_tab:
-            customScore()
-        
-    dashBoardFooter()
-    
+         
 
 def attendanceTab():
     #Create a slider
@@ -262,28 +222,22 @@ def attendanceTab():
     
     
 def internalsTab():
-    table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
+    st.session_state.target_slider = st.slider(
+        label = "Enter your target final marks(for 100): ",
+        min_value = 50,
+        max_value = 100,
+        value = 50
+    )
     
-    with table_tab:
-        st.session_state.target_slider = st.slider(
-            label = "Enter your target final marks(for 100): ",
-            min_value = 50,
-            max_value = 100,
-            value = 50
-        )
-        
-        st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
-        
-        st.session_state.internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
-        
-        st.dataframe(st.session_state.internals_table,hide_index = True)
-        
-        st.warning(""" '-' denotes you can't achieve target with your current internal marks                
-                     * beside the internal marks denotes final mark entry is pending
-                   """)
-        
-    with custom_tab:
-        customScore()
+    st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
+    
+    st.session_state.internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+    
+    st.dataframe(st.session_state.internals_table,hide_index = True)
+    
+    st.warning(""" '-' denotes you can't achieve target with your current internal marks                
+                    * beside the internal marks denotes final mark entry is pending
+                """)
         
         
 def customScore():    
@@ -330,7 +284,7 @@ def feedbackTab():
         try:
             autoFeedback(0,st.session_state.rollno,st.session_state.password)
         except:
-            st.warning("End semester feedback form not found!")       
+            st.warning("End semester feedback form not found!")
     
     if intermediate_form:
         try:
@@ -355,3 +309,51 @@ def dashBoardFooter():
     if logout_button:
         st.session_state.page = "login_page"
         st.rerun()
+        
+    st.markdown("""<p>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
+                to share new feauture ideas and report bugs!</p>""",unsafe_allow_html=True)
+        
+        
+def demoPage():
+    st.title("Welcome, Demo!")
+    st.divider()
+    
+    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
+    
+    with open("./demo/attendance.csv","r") as file:
+        csv_reader = csv.reader(file)
+        st.session_state.attendance_data = list(csv_reader)
+        st.session_state.updated_date = st.session_state.attendance_data[1][9]
+        
+    with open("./demo/cgpa.csv","r") as file:
+        csv_reader = csv.reader(file)
+        cgpa_data = list(csv_reader)
+        df_headers = ["SEMESTER","GPA","CGPA"]
+        cgpa_df = DataFrame(cgpa_data, columns=df_headers)
+        
+    with open("./demo/exams.csv","r") as file:
+        csv_reader = csv.reader(file)
+        schedule_data = list(csv_reader)
+        df_headers = ["COURSE_CODE","DATE","TIME"]
+        schedule_df = DataFrame(schedule_data, columns=df_headers)
+        
+    with attendance_tab:
+        attendanceTab()
+            
+    with cgpa_tab:
+        st.dataframe(cgpa_df, hide_index = True)
+        st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+        
+    with exams_tab:
+        st.dataframe(schedule_df, hide_index = True)
+        
+    with internals_tab:
+        table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
+        
+        with table_tab:
+            st.warning("Your internal marks are unavailable at the moment")
+            
+        with custom_tab:
+            customScore()
+        
+    dashBoardFooter()
