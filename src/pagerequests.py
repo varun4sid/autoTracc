@@ -1,5 +1,7 @@
 from requests import Session
 from bs4 import BeautifulSoup
+from datetime import datetime
+import pytz
 
 
 def getHomePageAttendance(rollno, password):
@@ -74,15 +76,32 @@ def getHomePageCGPA(rollno, password):
     return session
     
 
-def getUsername(session):
-    #Get a page with username
-    name_page_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/AttendanceMenu" 
-    name_page = session.get(name_page_url)
-
-    #Get the html of the page
-    name_page_soup = BeautifulSoup(name_page.text, "lxml")
+def greetUser(session):
+    scholarship_url = "https://ecampus.psgtech.ac.in/studzone/Scholar/VallalarScholarship"
+    scholarship_page = session.get(scholarship_url)
+    
+    page_soup = BeautifulSoup(scholarship_page.text, "lxml")
+    
+    #Get the personal info
+    personal_info_table = page_soup.find("td",{"class":"personal-info"})
+    personal_info = personal_info_table.find_all("td")
 
     #Get the username
-    username = name_page_soup.find("span",{"class":"name"})
+    username = personal_info[0].string.strip()
+    
+    #Get the birthday
+    birthdate = personal_info[2].string.strip()
+    birthdate = datetime.strptime(birthdate, "%d/%m/%Y").date()
+    
+    #Get current date
+    IST = pytz.timezone('Asia/Kolkata') 
+    today = datetime.now(IST).date()
+    
+    if birthdate.month == today.month and birthdate.day == today.day:
+        greeting = "Happy Birthday " + username + "!"
+        from streamlit import balloons
+        balloons()
+    else:
+        greeting = "Welcome " + username + "!"
 
-    return username.string
+    return greeting

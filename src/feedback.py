@@ -1,11 +1,9 @@
-import os
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
-from webdriver_manager.chrome import ChromeDriverManager
 import streamlit as st
 
 
@@ -26,15 +24,12 @@ def createDriver():
     return driver
 
 
-def intermediateForm(rollno,password):
+def autoFeedback(index,rollno,password):
     #Create a webdriver
     progress_bar = st.progress(0,text = "Fetching feedback page...")
     browser = createDriver()
     
     browser.get("https://ecampus.psgtech.ac.in/studzone")
-    
-    #Instantiate a wait sequence for page rendering
-    wait = WebDriverWait(browser,10)
     
     #Fill out the credentials
     rollno_field = browser.find_element(By.ID,"rollno")
@@ -50,14 +45,33 @@ def intermediateForm(rollno,password):
     browser.execute_script("arguments[0].click();",login_button)
     
     #Get the feedback index page
-    browser.get("https://ecampus.psgtech.ac.in/studzone/Feedback/Intermediate")
-    feedbacks_index = browser.find_elements(By.CLASS_NAME,"card-body")
+    browser.get("https://ecampus.psgtech.ac.in/studzone/Feedback/Index")
     
-    #Click the intermediate feedback 
-    browser.execute_script("arguments[0].click();",feedbacks_index[1])
+    feedbacks = browser.find_elements(By.CLASS_NAME,"card-body")
     
+    #Click the desired feedback
+    browser.execute_script("arguments[0].click();",feedbacks[index])
+    
+    progress_bar.empty()
+    try:
+        if index == 0:
+            endsemForm(browser)
+        else:
+            intermediateForm(browser)
+            
+        st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
+    except:
+        st.warning("Feedback form not found!")
+    
+    
+
+def intermediateForm(browser):
+    progress_bar = st.progress(0,text = "Fetching feedback page...")
     #Get the courses
     courses = browser.find_elements(By.CLASS_NAME,"intermediate-body")
+    
+    #Instantiate a wait sequence for page rendering
+    wait = WebDriverWait(browser,10)
     
     #Iterate through the courses
     for course in range(len(courses)):
@@ -82,3 +96,7 @@ def intermediateForm(rollno,password):
         browser.execute_script("arguments[0].click();",back)
     
     browser.quit()
+    
+    
+def endsemForm(browser):
+    raise

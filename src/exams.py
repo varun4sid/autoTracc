@@ -22,6 +22,9 @@ def getExamSchedule(session):
     #Extract exam details and append the records to a list
     schedule_data = []
 
+    #Map the course codes with course initials and store in list of records
+    course_map = getCourseNames(session)
+
     #Set the indices for required data
     required_indices = [0,2,4]
 
@@ -34,14 +37,11 @@ def getExamSchedule(session):
         row = []
         for index in required_indices:
             row.append(exam_contents[index].text[1:].strip())
-
+        try:
+            row[0] = ''.join( [ row[0], '   -   ', course_map[row[0]] ] )
+        except KeyError:
+            continue
         schedule_data.append(row)
-
-    #Map the course codes with course initials and store in list of records
-    course_map = getCourseNames(session)
-
-    for row in schedule_data:
-        row[0] = ''.join( [ row[0], '   -   ', course_map[row[0]] ] )
 
     #Set the dataframe headers
     df_headers = ["COURSE_CODE","DATE","TIME"]

@@ -36,11 +36,20 @@ def initializeSessionState():
     if "updated_date" not in st.session_state:
         st.session_state.updated_data = ""
         
-    if "internals_slider" not in st.session_state:
-        st.session_state.internals_slider = 29
+    if "custom_internals" not in st.session_state:
+        st.session_state.custom_internals = 29
+        
+    if "custom_target" not in st.session_state:
+        st.session_state.custom_target = 50
+        
+    if "internals_data" not in st.session_state:
+        st.session_state.internals_data = ""
         
     if "target_slider" not in st.session_state:
-        st.session_state.target_slider = 50
+        st.session_state.target_slider = ""
+        
+    if "internals_table" not in st.session_state:
+        st.session_state.internals_table = ""
 
 
 def displayLoginNote():
@@ -117,18 +126,18 @@ def loginPage():
 
 def dashBoardPage():
     #Greet the user
-    user_name = getUsername(st.session_state.attendance_session)
-    st.title(f"Welcome {user_name}!")
+    greeting = greetUser(st.session_state.attendance_session)
+    st.title(greeting)
+    st.markdown("<p style = 'opacity:0.7'>Check out the new internals and feedback tabs!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs
     attendance_tab, cgpa_tab, exams_tab, internals_tab,feedback_tab = st.tabs(["Attendance","CGPA","Exams","Internals","Feedback"])
 
     #Compute the necessary details and store in session state
-    st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
-    
     #Get the date when attendance was recently updated
     try:
+        st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
         st.session_state.updated_date = st.session_state.attendance_data[1][9]
         attendance_available = True
     except:
@@ -141,8 +150,6 @@ def dashBoardPage():
         cgpa_available = True
     except:
         cgpa_available = False
-
-    schedule_data = getExamSchedule(st.session_state.attendance_session)
 
     #Display attendance details
     with attendance_tab:
@@ -168,6 +175,7 @@ def dashBoardPage():
 
     #Display tab for Exam schedule
     with exams_tab:
+        schedule_data = getExamSchedule(st.session_state.attendance_session)
         try:
             st.dataframe(schedule_data, hide_index = True)
         except:
@@ -175,15 +183,14 @@ def dashBoardPage():
             
     #Display tab for internal marks
     with internals_tab:
-        targetScore()
+        try:
+            st.session_state.internals_data = getInternals(st.session_state.attendance_session)
+            internalsTab()
+        except:
+            st.warning("Your internal marks are unavailable at the moment")
         
     with feedback_tab:
-        st.write("##### Autofill your feedback forms with just one click!")
-        intermediate_form = st.button("Intermediate")
-        
-        if intermediate_form:
-            intermediateForm(st.session_state.rollno,st.session_state.password)
-            st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
+        feedbackTab()
                 
     dashBoardFooter()
         
@@ -222,7 +229,13 @@ def demoPage():
         st.dataframe(schedule_df, hide_index = True)
         
     with internals_tab:
-        targetScore()
+        table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
+        
+        with table_tab:
+            st.write("tab2")
+            
+        with custom_tab:
+            customScore()
         
     dashBoardFooter()
     
@@ -246,8 +259,86 @@ def attendanceTab():
     #Display notes for the user
     st.warning("""NOTE : '-' next to number of leaves denotes classes must be attended
                 to meet the corresponding percentage without skipping classes""")
-
-
+    
+    
+def internalsTab():
+    table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
+    
+    with table_tab:
+        st.session_state.target_slider = st.slider(
+            label = "Enter your target final marks(for 100): ",
+            min_value = 50,
+            max_value = 100,
+            value = 50
+        )
+        
+        st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
+        
+        st.session_state.internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+        
+        st.dataframe(st.session_state.internals_table,hide_index = True)
+        
+        st.warning(""" '-' denotes you can't achieve target with your current internal marks                
+                     * beside the internal marks denotes final mark entry is pending
+                   """)
+        
+    with custom_tab:
+        customScore()
+        
+        
+def customScore():    
+    st.session_state.custom_internals = st.slider(
+        label = "Internal marks(for 50): ",
+        min_value = 0,
+        max_value = 50,
+        value = 29
+    )
+    
+    st.session_state.custom_target = st.slider(
+        label = "Enter your target final marks(for 100): ",
+        min_value = 50,
+        max_value = 100,
+        value = 50,
+        key="custom"
+    )
+    
+    target_score = calculateTarget(st.session_state.custom_internals,st.session_state.custom_target)
+    if target_score != '-':
+        result_string = "You need to score atleast "
+        result_string += str(target_score)
+        result_string += " in end-semester exam to get a final score of "
+        result_string += str(st.session_state.custom_target)
+        st.markdown(f"<h5 style='color:rgb(0, 255, 0);'><br><br>{result_string}<br><br></h5>", unsafe_allow_html=True)
+    else:
+        result_string = "You can't get a final score of "
+        result_string += str(st.session_state.custom_target)
+        result_string += " with an internals score of "
+        result_string += str(st.session_state.custom_internals)
+        st.markdown(f"<h5 style='color:rgb(255, 0, 0);'><br><br>{result_string}<br><br></h5>", unsafe_allow_html=True)
+        
+        
+def feedbackTab():
+    st.write("##### Autofill your feedback forms with just one click!")
+    
+    white_space_left, button1, button2, white_space_right = st.columns([2,2,2,2])
+    with button1:
+        intermediate_form = st.button("Intermediate")
+    with button2:
+        endsem_form       = st.button("End-Semester")
+    
+    if endsem_form:
+        try:
+            autoFeedback(0,st.session_state.rollno,st.session_state.password)
+        except:
+            st.warning("End semester feedback form not found!")       
+    
+    if intermediate_form:
+        try:
+            autoFeedback(1,st.session_state.rollno,st.session_state.password)
+        except:
+            st.warning("Intermediate feedback form not found!")
+            
+            
 def dashBoardFooter():
     st.divider()
 
@@ -264,36 +355,3 @@ def dashBoardFooter():
     if logout_button:
         st.session_state.page = "login_page"
         st.rerun()
-        
-        
-def targetScore():
-    #st.warning("Automated tracking for your courses coming soon...")
-    st.warning("Your internal marks are unavailable at the moment...")
-    
-    st.session_state.internals_slider = st.slider(
-        label = "Internal marks(for 50): ",
-        min_value = 0,
-        max_value = 50,
-        value = 29
-    )
-    
-    st.session_state.target_slider = st.slider(
-        label = "Enter your target final marks(for 100): ",
-        min_value = 50,
-        max_value = 100,
-        value = 50
-    )
-    
-    target_score = calculateTarget(st.session_state.internals_slider,st.session_state.target_slider)
-    if target_score != '-':
-        result_string = "You need to score atleast "
-        result_string += str(target_score)
-        result_string += " in end-semester exam to get a final score of "
-        result_string += str(st.session_state.target_slider)
-        st.markdown(f"<h5 style='color:rgb(0, 255, 0);'><br><br>{result_string}<br><br></h5>", unsafe_allow_html=True)
-    else:
-        result_string = "You can't get a final score of "
-        result_string += str(st.session_state.target_slider)
-        result_string += " with an internals score of "
-        result_string += str(st.session_state.internals_slider)
-        st.markdown(f"<h5 style='color:rgb(255, 0, 0);'><br><br>{result_string}<br><br></h5>", unsafe_allow_html=True)

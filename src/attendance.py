@@ -11,35 +11,27 @@ def getStudentAttendance(session):
     attendance_soup = BeautifulSoup(student_percentage_page.text,"lxml")
 
     #Get the table element from the html
-    attendance_table = attendance_soup.find("table",{"class":"table table-bordered"})
+    attendance_table = attendance_soup.find("table",{"id":"example"}).find("tbody")
 
     #Get the list of table rows
     table_rows = attendance_table.find_all("tr")
 
+    #Get the mapping of course code to course name's initials
+    course_map = getCourseNames(session)
+
     #Extract the values and append it to a list of records/rows
     data = []
-    
-    #Get the first row which is a header
-    header = table_rows.pop(0)
-    row=[]
-    for cell in header.find_all("th"):
-        row.append(cell.text)
-    data.append(row)
-    
-    #Get the remaining rows
+
     for row in table_rows:
         record = []
         for cell in row.find_all("td"):
             record.append(cell.text)
+        try:
+            record[0] = ''.join( [ record[0], '   -   ', course_map[record[0]] ] )
+        except KeyError:
+            continue
         data.append(record)
-
-    #Get the mapping of course code to course name's initials
-    course_map = getCourseNames(session)
-
-    #Add the initials to the course code column
-    for row in data[1:]:
-        row[0] = ''.join( [ row[0], '   -   ', course_map[row[0]] ] )
-
+        
     return data
 
 
@@ -83,8 +75,8 @@ def getAffordableLeaves(data,custom_percentage):
     result = []
 
     #Calculate affordable leaves for each course and update result
-    for i in range(1, len(data)): #index from 1 as we exclude header
-        row=[data[i][0]]          #initialize row with course id
+    for i in range(len(data)):
+        row=[data[i][0]]                #initialize row with course id
         classes_total = int(data[i][1])  #typecast attendance values to int
         classes_present = int(data[i][4])
 
