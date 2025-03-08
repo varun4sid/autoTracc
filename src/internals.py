@@ -52,16 +52,16 @@ def getTargetScore(theory_table, target):
         if record[-2] in ['',' ','*']:
             row.extend(['*','*'])
         else:
+            pass_score = calculateTarget(record[-2],50)
             sem_score = calculateTarget(record[-2],target)
-            row.extend([record[-2],sem_score])
+            row.extend([record[-2],pass_score,sem_score])
+            row[1] = float(row[1])
+            row[1] = '{:.2f}'.format(row[1])
             if not final:
                 row[1] = ''.join( [row[1], '*'] )
         result.append(row)
         
-    df_headers = [ "THEORY_COURSES", "INTERNALS(/50)", f"REQUIRED_SEMSCORE(FOR {target})" ]
-    
-    df = DataFrame(result, columns = df_headers)
-    return df
+    return result
     
 
 def calculateTarget(internal,final):

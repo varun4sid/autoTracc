@@ -223,7 +223,7 @@ def attendanceTab():
     
 def internalsTab():
     st.session_state.target_slider = st.slider(
-        label = "Enter your target final marks(for 100): ",
+        label = "Enter your target final marks (for 100): ",
         min_value = 50,
         max_value = 100,
         value = 50
@@ -233,7 +233,7 @@ def internalsTab():
     
     st.session_state.internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
     
-    st.dataframe(st.session_state.internals_table,hide_index = True)
+    renderInternals()
     
     st.warning(""" '-' denotes you can't achieve target with your current internal marks                
                     * beside the internal marks denotes final mark entry is pending
@@ -249,7 +249,7 @@ def customScore():
     )
     
     st.session_state.custom_target = st.slider(
-        label = "Enter your target final marks(for 100): ",
+        label = "Enter your target final marks (for 100): ",
         min_value = 50,
         max_value = 100,
         value = 50,
@@ -357,3 +357,30 @@ def demoPage():
             customScore()
         
     dashBoardFooter()
+    
+
+def renderInternals():
+    table_header = f"""
+        <table style='margin:auto;'>
+            <tr>
+                <th rowspan="2">Theory Course</th>
+                <th rowspan="2">Internals (/50)</th>
+                <th colspan="2">Required Semester Score</th>
+            </tr>
+            <tr>
+                <th>To Pass (50)</th>
+                <th>To Target ({st.session_state.target_slider})</th>
+            </tr>
+    """
+    
+    table_body = ""
+    
+    for course in st.session_state.internals_table:
+        table_body += f"<tr><td style='text-align:left;'>{course[0]}</td><td style='text-align:right;'>{course[1]}</td>"
+        table_body += f"<td>{course[2]}</td><td>{course[3]}</td></tr>"
+        
+    table_body += "</table><br>"
+    
+    table = table_header + table_body
+    
+    st.markdown(table, unsafe_allow_html=True)
