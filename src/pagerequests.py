@@ -1,6 +1,7 @@
 from requests import Session
 from bs4 import BeautifulSoup
 from datetime import datetime
+import streamlit as st
 import pytz
 
 
@@ -99,9 +100,9 @@ def greetUser(session):
     
     if birthdate.month == today.month and birthdate.day == today.day:
         greeting = "Happy Birthday " + username + "!"
-        from streamlit import balloons
-        balloons()
+        st.session_state.balloons = True
     else:
         greeting = "Welcome " + username + "!"
+        st.session_state.balloons = False
 
     return greeting

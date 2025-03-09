@@ -5,8 +5,8 @@ st.set_page_config(
     page_title = "autoTracc",
 )
 
-if "init" not in st.session_state:
-    st.session_state.init = 0
+if "page" not in st.session_state:
+    st.session_state.page = "login_page"
     initializeSessionState()
 
 
@@ -21,8 +21,13 @@ st.markdown("""
 if st.session_state.page == "login_page":
     loginPage()
 
+if st.session_state.page == "processing":
+    processingPage()
+
 if st.session_state.page == "dashboard":
     dashBoardPage()
+    dashBoardFooter()
     
 if st.session_state.page == "demo":
     demoPage()
+    dashBoardFooter()

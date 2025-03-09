@@ -1,55 +1,37 @@
 import streamlit as st
 import csv
 
-from src.pagerequests import *
-from src.attendance import *
-from src.cgpa import *
-from src.exams import *
-from src.internals import *
-from src.feedback import *
+from .pagerequests import *
+from .attendance import *
+from .cgpa import *
+from .exams import *
+from .internals import *
+from .feedback import *
 
 def initializeSessionState():
-    if "page" not in st.session_state:
-        st.session_state.page = "login_page"
+    defaults = {
+        "rollno": "",
+        "password": "",
+        "greeting": "",
+        "balloons":False,
+        "attendance_slider": 75,
+        "attendance_table": "",
+        "attendance_session": 0,
+        "attendance_data": "",
+        "attendance_available": False,
+        "cgpa_available": False,
+        "courses_session": "",
+        "updated_data": "",
+        "custom_internals": 29,
+        "custom_target": 50,
+        "internals_data": "",
+        "target_slider": "",
+        "internals_table": "",
+    }
 
-    if "rollno" not in st.session_state:
-        st.session_state.rollno   = ""
-    
-    if "password" not in st.session_state:
-        st.session_state.password = ""
-
-    if "attendance_slider" not in st.session_state:
-        st.session_state.attendance_slider = 75
-
-    if "attendance_result" not in st.session_state:
-        st.session_state.attendance_table = ""
-
-    if "attendance_session" not in st.session_state:
-        st.session_state.attendance_session = 0
-
-    if "attendance_data" not in st.session_state:
-        st.session_state.attendance_data = ""
-
-    if "courses_session" not in st.session_state:
-        st.session_state.courses_session = ""
-        
-    if "updated_date" not in st.session_state:
-        st.session_state.updated_data = ""
-        
-    if "custom_internals" not in st.session_state:
-        st.session_state.custom_internals = 29
-        
-    if "custom_target" not in st.session_state:
-        st.session_state.custom_target = 50
-        
-    if "internals_data" not in st.session_state:
-        st.session_state.internals_data = ""
-        
-    if "target_slider" not in st.session_state:
-        st.session_state.target_slider = ""
-        
-    if "internals_table" not in st.session_state:
-        st.session_state.internals_table = ""
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
 
 
 def displayLoginNote():
@@ -68,17 +50,17 @@ def displayLoginNote():
     
 
 def loginPage():
-    st.title("autoTracc")
-    st.markdown("<p style = 'opacity:0.7'>Enter your studzone details</p>", unsafe_allow_html=True)
-
     #Use st.columns() to align the contents
     white_space_left, login_form, white_space_right = st.columns([1,4,1]) #List represents ratio of column widths
 
     #Use the middle column to center-justify our form
     with login_form:
+        st.title("autoTracc")
+        st.markdown("<p style = 'opacity:0.7'>Enter your studzone details</p>", unsafe_allow_html=True)
 
+        form_widget = st.form(key="login_form")
         #Create a form
-        with st.form(key="login_form"):
+        with form_widget:
 
             #Get user input
             st.session_state.rollno   = st.text_input("RollNo:")
@@ -94,25 +76,22 @@ def loginPage():
                     st.warning("Please fill all the details!")
                 
                 else:
-                    with st.spinner("Fetching user data..."):
+                    form_widget.empty()
                     #Check if credentials are correct by requesting user data from studzone website
-                        attendance_home_page = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+                    attendance_home_page = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
 
-                        #If credentials are correct we get the homepage
-                        if attendance_home_page:
-                            #Change session state and store the session
-                            st.session_state.page = "dashboard"
-                            st.session_state.attendance_session = attendance_home_page
+                    #If credentials are correct we get the homepage
+                    if attendance_home_page:
+                        #Store the studzone session
+                        st.session_state.attendance_session = attendance_home_page
 
-                            courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
-                            st.session_state.courses_session = courses_home_page
-
-                            #Rerun the script with updated session state to go to the next page
-                            st.rerun()
+                        #Change session state and rerun to go to next page
+                        st.session_state.page = "processing"
+                        st.rerun()
                         
-                        #If credentials incorrect then warn the user without leaving login page
-                        else:
-                            st.warning("Invalid Credentials! Try again!")
+                    #If credentials incorrect then warn the user without leaving login page
+                    else:
+                        st.warning("Invalid Credentials! Try again!")
 
         #Display the disclaimer
         displayLoginNote()
@@ -124,36 +103,48 @@ def loginPage():
             st.rerun()
     
 
+def processingPage():
+    with st.spinner("Fetching user data..."):
+        #Compute the necessary details and store in session state
+        st.session_state.greeting = greetUser(st.session_state.attendance_session)      
+        
+        #Get the date when attendance was recently updated
+        try:
+            st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
+            st.session_state.updated_date = st.session_state.attendance_data[1][9]
+            st.session_state.attendance_available = True
+        except:
+            st.session_state.attendance_available = False
+            
+        #Get the cgpa data and handle exceptions 
+        try:
+            courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
+            courses_data, completed_semester = getStudentCourses(courses_home_page)
+            st.session_state.cgpa_data = getCGPA(courses_data, completed_semester)
+            st.session_state.cgpa_available = True
+        except:
+            st.session_state.cgpa_available = False
+
+        st.session_state.page = "dashboard"
+        st.rerun()
+        
+
 def dashBoardPage():
     #Greet the user
-    greeting = greetUser(st.session_state.attendance_session)
-    st.title(greeting)
+    st.title(st.session_state.greeting)
+    if st.session_state.balloons:
+        st.balloons()
+        st.session_state.balloons = False
+        
     st.markdown("<p style = 'opacity:0.7'>Check out the new internals and feedback tabs!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs
     attendance_tab, cgpa_tab, exams_tab, internals_tab,feedback_tab = st.tabs(["Attendance","CGPA","Exams","Internals","Feedback"])
 
-    #Compute the necessary details and store in session state
-    #Get the date when attendance was recently updated
-    try:
-        st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
-        st.session_state.updated_date = st.session_state.attendance_data[1][9]
-        attendance_available = True
-    except:
-        attendance_available = False
-
-    #Get the cgpa data and handle exceptions 
-    try:
-        courses_data, completed_semester = getStudentCourses(st.session_state.courses_session)
-        cgpa_data = getCGPA(courses_data, completed_semester)
-        cgpa_available = True
-    except:
-        cgpa_available = False
-
     #Display attendance details
     with attendance_tab:
-        if attendance_available:
+        if st.session_state.attendance_available:
             attendanceTab()
         else:
             st.warning("""
@@ -164,8 +155,8 @@ def dashBoardPage():
 
     #Display tab for CGPA details
     with cgpa_tab:
-        if cgpa_available:
-            st.dataframe(cgpa_data, hide_index = True)
+        if st.session_state.cgpa_available:
+            st.dataframe(st.session_state.cgpa_data, hide_index = True)
             st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
         else:
             st.warning("""
@@ -196,8 +187,6 @@ def dashBoardPage():
         
     with feedback_tab:
         feedbackTab()
-                
-    dashBoardFooter()
          
 
 def attendanceTab():
@@ -292,7 +281,7 @@ def feedbackTab():
         except:
             st.warning("Intermediate feedback form not found!")
             
-            
+    
 def dashBoardFooter():
     st.divider()
 
@@ -355,9 +344,7 @@ def demoPage():
             
         with custom_tab:
             customScore()
-        
-    dashBoardFooter()
-    
+            
 
 def renderInternals():
     table_header = f"""
