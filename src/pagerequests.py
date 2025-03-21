@@ -4,11 +4,19 @@ from datetime import datetime
 import streamlit as st
 import pytz
 
+# from requests.adapters import HTTPAdapter
+# from urllib3.util.retry import Retry
 
 def getHomePageAttendance(rollno, password):
     #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone"
     session = Session()
+
+    #To counter MaxRetriesExceeded exception
+    # retry = Retry(connect=3, backoff_factor=0.5)
+    # adapter = HTTPAdapter(max_retries=retry)
+    # session.mount('http://', adapter)
+    # session.mount('https://', adapter)
 
     #Get the login page
     login_page = session.get(login_url)

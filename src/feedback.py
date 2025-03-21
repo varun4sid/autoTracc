@@ -28,6 +28,7 @@ def autoFeedback(index,rollno,password):
     #Create a webdriver
     progress_bar = st.progress(0,text = "Fetching feedback page...")
     browser = createDriver()
+    wait = WebDriverWait(browser,10)
     
     browser.get("https://ecampus.psgtech.ac.in/studzone")
     
@@ -45,8 +46,10 @@ def autoFeedback(index,rollno,password):
     browser.execute_script("arguments[0].click();",login_button)
     
     #Get the feedback index page
-    browser.get("https://ecampus.psgtech.ac.in/studzone/Feedback/Index")
+    feedback_card = wait.until(EC.element_to_be_clickable((By.XPATH,f"//h5[text()='Feedback']")))
+    browser.execute_script("arguments[0].scrollIntoView();arguments[0].click();",feedback_card)
     
+    wait.until(EC.element_to_be_clickable((By.CLASS_NAME,"card-body")))
     feedbacks = browser.find_elements(By.CLASS_NAME,"card-body")
     
     #Click the desired feedback
@@ -57,6 +60,7 @@ def autoFeedback(index,rollno,password):
         endsemForm(browser)
     else:
         intermediateForm(browser)
+        
     
     
 def intermediateForm(browser):
@@ -99,7 +103,43 @@ def intermediateForm(browser):
     
     browser.quit()
     progress_bar.empty()
+    st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
     
     
 def endsemForm(browser):
-    raise
+    progress_bar = st.progress(0,text = "Fetching feedback page...")
+    
+    wait = WebDriverWait(browser,10)
+    try:
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.staff-item")))
+    except:
+        raise
+        
+    staffList = browser.find_elements(By.CSS_SELECTOR,"div.staff-item")
+    
+    for staff in range(len(staffList)):
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"div.staff-item")))
+        staffList = browser.find_elements(By.CSS_SELECTOR,"div.staff-item")
+        browser.execute_script("arguments[0].scrollIntoView();arguments[0].click()", staffList[staff])
+        
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.ms-1")))
+        course_name = browser.find_elements(By.CSS_SELECTOR,"span.ms-1")[1].text
+        progress_bar.progress( (staff/len(staffList)), text = course_name+"...")
+        wait.until(EC.element_to_be_clickable((By.XPATH,"//tbody[@id='feedbackTableBody']/tr[1]/td[@class='rating-cell']/div[@class='star-rating']/label[1]")))
+        
+        review_list = browser.find_elements(By.CSS_SELECTOR,"td.question-cell")
+        for count in range(1,len(review_list)+1):
+            star_button = browser.find_element(By.XPATH,f"//tbody[@id='feedbackTableBody']/tr[{count}]/td[@class='rating-cell']/div[@class='star-rating']/label[1]")
+            browser.execute_script("arguments[0].scrollIntoView();arguments[0].click()",star_button)
+        
+        submit_button = browser.find_element(By.ID,"btnSave")
+        browser.execute_script("arguments[0].scrollIntoView();arguments[0].click()", submit_button)
+        wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"img.img-fluid")))
+        progress_bar.progress( ((staff+1)/len(staffList)), text = course_name+"...")
+        
+    final_submit_button = browser.find_element(By.ID,"btnFinalSubmit")
+    browser.execute_script("arguments[0].scrollIntoView();arguments[0].click()",final_submit_button)
+    
+    browser.quit()
+    progress_bar.empty()
+    st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")

@@ -136,7 +136,7 @@ def dashBoardPage():
         st.balloons()
         st.session_state.balloons = False
         
-    st.markdown("<p style = 'opacity:0.7'>Check out the new internals and feedback tabs!</p>", unsafe_allow_html=True)
+    st.markdown("<p style = 'opacity:0.5;font-style: italic; font-weight: bold'>You can now autofill end-semester feedback!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs
@@ -273,13 +273,13 @@ def feedbackTab():
         try:
             autoFeedback(0,st.session_state.rollno,st.session_state.password)
         except:
-            st.warning("End semester feedback form not found!")
+            st.warning("End semester feedback form not found! Try again if autofill interrupted!")
     
     if intermediate_form:
         try:
             autoFeedback(1,st.session_state.rollno,st.session_state.password)
         except:
-            st.warning("Intermediate feedback form not found!")
+            st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")
             
     
 def dashBoardFooter():
