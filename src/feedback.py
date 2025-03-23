@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
+from random import randint
 import streamlit as st
 
 
@@ -129,7 +130,7 @@ def endsemForm(browser):
         
         review_list = browser.find_elements(By.CSS_SELECTOR,"td.question-cell")
         for count in range(1,len(review_list)+1):
-            star_button = browser.find_element(By.XPATH,f"//tbody[@id='feedbackTableBody']/tr[{count}]/td[@class='rating-cell']/div[@class='star-rating']/label[1]")
+            star_button = browser.find_element(By.XPATH,f"//tbody[@id='feedbackTableBody']/tr[{count}]/td[@class='rating-cell']/div[@class='star-rating']/label[{randint(1,2)}]")
             browser.execute_script("arguments[0].scrollIntoView();arguments[0].click()",star_button)
         
         submit_button = browser.find_element(By.ID,"btnSave")
