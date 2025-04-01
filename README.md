@@ -10,8 +10,6 @@
 
 + **Internal marks and set target for their end-semester marks**
 
-+ **Autofill feedback forms**
-
 <br>
 
 # Privacy

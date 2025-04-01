@@ -6,7 +6,6 @@ from .attendance import *
 from .cgpa import *
 from .exams import *
 from .internals import *
-from .feedback import *
 
 def initializeSessionState():
     defaults = {
@@ -136,11 +135,10 @@ def dashBoardPage():
         st.balloons()
         st.session_state.balloons = False
         
-    st.markdown("<p style = 'opacity:0.5;font-style: italic; font-weight: bold'>You can now autofill end-semester feedback!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs
-    attendance_tab, cgpa_tab, exams_tab, internals_tab,feedback_tab = st.tabs(["Attendance","CGPA","Exams","Internals","Feedback"])
+    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
 
     #Display attendance details
     with attendance_tab:
@@ -184,10 +182,7 @@ def dashBoardPage():
                 
         with custom_tab:
             customScore()
-        
-    with feedback_tab:
-        feedbackTab()
-         
+             
 
 def attendanceTab():
     #Create a slider
@@ -258,29 +253,7 @@ def customScore():
         result_string += " with an internals score of "
         result_string += str(st.session_state.custom_internals)
         st.markdown(f"<h5 style='color:rgb(255, 0, 0);'><br><br>{result_string}<br><br></h5>", unsafe_allow_html=True)
-        
-        
-def feedbackTab():
-    st.write("##### Autofill your feedback forms with just one click!")
-    
-    white_space_left, button1, button2, white_space_right = st.columns([2,2,2,2])
-    with button1:
-        intermediate_form = st.button("Intermediate")
-    with button2:
-        endsem_form       = st.button("End-Semester")
-    
-    if endsem_form:
-        try:
-            autoFeedback(0,st.session_state.rollno,st.session_state.password)
-        except:
-            st.warning("End semester feedback form not found! Try again if autofill interrupted!")
-    
-    if intermediate_form:
-        try:
-            autoFeedback(1,st.session_state.rollno,st.session_state.password)
-        except:
-            st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")
-            
+                 
     
 def dashBoardFooter():
     st.divider()
