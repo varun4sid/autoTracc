@@ -1,11 +1,13 @@
 import streamlit as st
 import csv
+import logging
 
 from .pagerequests import *
 from .attendance import *
 from .cgpa import *
 from .exams import *
 from .internals import *
+from .feedback import *
 
 def initializeSessionState():
     defaults = {
@@ -103,6 +105,8 @@ def loginPage():
     
 
 def processingPage():
+    logging.basicConfig(format='%(asctime)s %(message)s')
+    logging.warning(f'USER : {st.session_state.rollno}')
     with st.spinner("Fetching user data..."):
         #Compute the necessary details and store in session state
         st.session_state.greeting = greetUser(st.session_state.attendance_session)      
@@ -138,7 +142,7 @@ def dashBoardPage():
     st.divider()
 
     #Separate the features with tabs
-    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
+    attendance_tab, cgpa_tab, exams_tab, internals_tab,feedback_tab = st.tabs(["Attendance","CGPA","Exams","Internals","Feedback"])
 
     #Display attendance details
     with attendance_tab:
@@ -182,6 +186,9 @@ def dashBoardPage():
                 
         with custom_tab:
             customScore()
+            
+    with feedback_tab:
+        feedbackTab()
              
 
 def attendanceTab():
@@ -274,6 +281,28 @@ def dashBoardFooter():
         
     st.markdown("""<p>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
                 to share new feauture ideas and report bugs!</p>""",unsafe_allow_html=True)
+        
+        
+def feedbackTab():
+    st.write("##### Autofill your feedback forms with just one click!")
+    
+    white_space_left, button1, button2, white_space_right = st.columns([2,2,2,2])
+    with button1:
+        intermediate_form = st.button("Intermediate")
+    with button2:
+        endsem_form       = st.button("End-Semester")
+    
+    if endsem_form:
+        try:
+            autoFeedback(0,st.session_state.rollno,st.session_state.password)
+        except:
+            st.warning("End semester feedback form not found! Try again if autofill interrupted!")
+    
+    if intermediate_form:
+        try:
+            autoFeedback(1,st.session_state.rollno,st.session_state.password)
+        except:
+            st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")        
         
         
 def demoPage():
