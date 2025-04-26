@@ -1,6 +1,8 @@
 import streamlit as st
 import csv
 import logging
+import datetime
+import pytz
 
 from .pagerequests import *
 from .attendance import *
@@ -105,8 +107,9 @@ def loginPage():
     
 
 def processingPage():
-    logging.basicConfig(format='%(asctime)s %(message)s')
-    logging.warning(f'USER : {st.session_state.rollno}')
+    logging.basicConfig()
+    logtime = datetime.now(pytz.timezone('Asia/Calcutta')).replace(second=0,microsecond=0,tzinfo=None)
+    logging.warning(f'{logtime} USER : {str.upper(st.session_state.rollno)}')
     with st.spinner("Fetching user data..."):
         #Compute the necessary details and store in session state
         st.session_state.greeting = greetUser(st.session_state.attendance_session)      
