@@ -3,6 +3,7 @@ import csv
 import logging
 import datetime
 import pytz
+import pandas as pd
 
 from .pagerequests import *
 from .attendance import *
@@ -19,12 +20,12 @@ def initializeSessionState():
         "balloons":False,
         "attendance_slider": 75,
         "attendance_table": "",
-        "attendance_session": 0,
+        "studzone1_session": 0,
         "attendance_data": "",
         "attendance_available": False,
+        "cgpa_data":"",
+        "courses_list":"",
         "cgpa_available": False,
-        "courses_session": "",
-        "updated_data": "",
         "custom_internals": 29,
         "custom_target": 50,
         "internals_data": "",
@@ -86,7 +87,7 @@ def loginPage():
                     #If credentials are correct we get the homepage
                     if attendance_home_page:
                         #Store the studzone session
-                        st.session_state.attendance_session = attendance_home_page
+                        st.session_state.studzone1_session = attendance_home_page
 
                         #Change session state and rerun to go to next page
                         st.session_state.page = "processing"
@@ -112,11 +113,11 @@ def processingPage():
     logging.warning(f'{logtime} USER : {str.upper(st.session_state.rollno)}')
     with st.spinner("Fetching user data..."):
         #Compute the necessary details and store in session state
-        st.session_state.greeting = greetUser(st.session_state.attendance_session)      
+        st.session_state.greeting = greetUser(st.session_state.studzone1_session)      
         
         #Get the date when attendance was recently updated
         try:
-            st.session_state.attendance_data = getStudentAttendance(st.session_state.attendance_session)
+            st.session_state.attendance_data = getStudentAttendance(st.session_state.studzone1_session)
             st.session_state.updated_date = st.session_state.attendance_data[1][9]
             st.session_state.attendance_available = True
         except:
@@ -127,6 +128,9 @@ def processingPage():
             courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
             courses_data, completed_semester = getStudentCourses(courses_home_page)
             st.session_state.cgpa_data = getCGPA(courses_data, completed_semester)
+            course_list = pd.DataFrame(courses_data[1:],columns=courses_data[0])
+            columns_order = ["S.No","COURSE CODE","COURSE TITLE","CREDITS","GRADE"]
+            st.session_state.courses_list = course_list[columns_order]
             st.session_state.cgpa_available = True
         except:
             st.session_state.cgpa_available = False
@@ -141,7 +145,8 @@ def dashBoardPage():
     if st.session_state.balloons:
         st.balloons()
         st.session_state.balloons = False
-        
+    
+    st.markdown("<p style = 'opacity:0.5;font-style: italic; font-weight: bold'>View list of completed courses in CGPA Tab!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs
@@ -161,8 +166,7 @@ def dashBoardPage():
     #Display tab for CGPA details
     with cgpa_tab:
         if st.session_state.cgpa_available:
-            st.dataframe(st.session_state.cgpa_data, hide_index = True)
-            st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+            cgpaTab()
         else:
             st.warning("""
                 Courses data unavailable at the moment. This is likely to be a server issue.
@@ -171,7 +175,7 @@ def dashBoardPage():
 
     #Display tab for Exam schedule
     with exams_tab:
-        schedule_data = getExamSchedule(st.session_state.attendance_session)
+        schedule_data = getExamSchedule(st.session_state.studzone1_session)
         try:
             st.dataframe(schedule_data, hide_index = True)
         except:
@@ -182,7 +186,7 @@ def dashBoardPage():
         table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
         with table_tab:
             try:
-                st.session_state.internals_data = getInternals(st.session_state.attendance_session)
+                st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
                 internalsTab()
             except:
                 st.warning("Your internal marks are unavailable at the moment")
@@ -376,3 +380,14 @@ def renderInternals():
     table = table_header + table_body
     
     st.markdown(table, unsafe_allow_html=True)
+    
+    
+def cgpaTab():
+    tab1,tab2 = st.tabs(["CGPA", "Course List"])
+    
+    with tab1:
+        st.dataframe(st.session_state.cgpa_data, hide_index = True)
+        st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+    with tab2:
+        st.write("Swipe left on table if you're on mobile to see credits and grade columns")
+        st.dataframe(st.session_state.courses_list, hide_index=True)

@@ -44,7 +44,7 @@ soupsieve==2.6
 streamlit==1.41.1
 tenacity==9.0.0
 toml==0.10.2
-tornado==6.4.2
+tornado>=6.5.0
 trio==0.29.0
 trio-websocket==0.12.2
 typing_extensions==4.12.2
