@@ -98,15 +98,13 @@ def loginPage():
                         st.warning("Invalid Credentials! Try again!")
 
         #Display the disclaimer
-        # displayLoginNote()
-        
-        st.markdown("<p style = 'color:red;font-style: italic; font-weight: bold'>ATTENTION! Latest results are not updated in the studzone courses endpoint. Please wait!</p>", unsafe_allow_html=True)
+        displayLoginNote()
 
-        # demo_button = st.button("Demo")
+        demo_button = st.button("Demo")
         
-        # if demo_button:
-        #     st.session_state.page = "demo"
-        #     st.rerun()
+        if demo_button:
+            st.session_state.page = "demo"
+            st.rerun()
     
 
 def processingPage():

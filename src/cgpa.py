@@ -48,7 +48,10 @@ def getStudentCourses(session):
     for row in studying_table_rows:
         record = []
         for cell in row.find_all("td"):
-            record.append(cell.string)
+            if cell.string:
+                record.append(cell.string)
+            else:
+                record.append("")
         studying_courses.append(record)
 
     #Find the last semester with no backlogs
@@ -82,7 +85,7 @@ def getCGPA(data, completed_semester):
     for semester in range(1,most_recent_semester+1): #index from 1st to most recent semester
         if not backlogs:
             courses = df.loc[df["COURSE_SEM"] == semester] #get all courses of particular semester
-            if semester == completed_semester: #check for backlogs in particular semester
+            if semester == completed_semester and completed_semester != most_recent_semester: #check for backlogs in particular semester
                 backlogs = True
                 record = [semester , "-", "-"]
                 result.append(record)
