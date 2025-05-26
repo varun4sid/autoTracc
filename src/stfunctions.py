@@ -98,12 +98,16 @@ def loginPage():
                         st.warning("Invalid Credentials! Try again!")
 
         #Display the disclaimer
-        displayLoginNote()
+        # displayLoginNote()
+        st.markdown("<p style = 'color:red;font-style: italic; font-weight: bold'>CGPA updated for students who cleared arrears!</p>", unsafe_allow_html=True)
 
         demo_button = st.button("Demo")
         
         if demo_button:
-            st.session_state.page = "demo"
+            st.session_state.rollno = st.secrets["DEMO_ROLL"]
+            st.session_state.password = st.secrets["DEMO_PASSWORD"]
+            st.session_state.studzone1_session = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+            st.session_state.page = "processing"
             st.rerun()
     
 
@@ -146,7 +150,7 @@ def dashBoardPage():
         st.balloons()
         st.session_state.balloons = False
     
-    st.markdown("<p style = 'opacity:0.5;font-style: italic; font-weight: bold'>View list of completed courses in CGPA Tab!</p>", unsafe_allow_html=True)
+    st.markdown("<p style = 'opacity:0.5;font-style: italic; font-weight: bold'>CGPA updated for students who cleared arrears!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs
@@ -310,49 +314,6 @@ def feedbackTab():
             autoFeedback(1,st.session_state.rollno,st.session_state.password)
         except:
             st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")        
-        
-        
-def demoPage():
-    st.title("Welcome, Demo!")
-    st.divider()
-    
-    attendance_tab, cgpa_tab, exams_tab, internals_tab = st.tabs(["Attendance","CGPA","Exams","Internals"])
-    
-    with open("./demo/attendance.csv","r") as file:
-        csv_reader = csv.reader(file)
-        st.session_state.attendance_data = list(csv_reader)
-        st.session_state.updated_date = st.session_state.attendance_data[1][9]
-        
-    with open("./demo/cgpa.csv","r") as file:
-        csv_reader = csv.reader(file)
-        cgpa_data = list(csv_reader)
-        df_headers = ["SEMESTER","GPA","CGPA"]
-        cgpa_df = DataFrame(cgpa_data, columns=df_headers)
-        
-    with open("./demo/exams.csv","r") as file:
-        csv_reader = csv.reader(file)
-        schedule_data = list(csv_reader)
-        df_headers = ["COURSE_CODE","DATE","TIME"]
-        schedule_df = DataFrame(schedule_data, columns=df_headers)
-        
-    with attendance_tab:
-        attendanceTab()
-            
-    with cgpa_tab:
-        st.dataframe(cgpa_df, hide_index = True)
-        st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
-        
-    with exams_tab:
-        st.dataframe(schedule_df, hide_index = True)
-        
-    with internals_tab:
-        table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
-        
-        with table_tab:
-            st.warning("Your internal marks are unavailable at the moment")
-            
-        with custom_tab:
-            customScore()
             
 
 def renderInternals():

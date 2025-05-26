@@ -27,7 +27,3 @@ if st.session_state.page == "processing":
 if st.session_state.page == "dashboard":
     dashBoardPage()
     dashBoardFooter()
-    
-if st.session_state.page == "demo":
-    demoPage()
-    dashBoardFooter()

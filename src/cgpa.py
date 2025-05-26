@@ -34,7 +34,9 @@ def getStudentCourses(session):
     }
 
     #Convert required data to readable format
+    completed_courses = []
     for row in data[1:]:
+        completed_courses.append(row[1].strip())
         row[4] = int(row[4].strip())
         row[6] = letter_grade[row[6].strip()]
         row[7] = int(row[7].strip())
@@ -43,19 +45,18 @@ def getStudentCourses(session):
     studying_courses_table = courses_soup.find("table",{"id":"Prettydatagrid3"})
     studying_table_rows = studying_courses_table.find_all("tr")
 
-    #Extract the records and values and store in list of lists
-    studying_courses = []
-    for row in studying_table_rows:
-        record = []
-        for cell in row.find_all("td"):
-            if cell.string:
-                record.append(cell.string)
-            else:
-                record.append("")
-        studying_courses.append(record)
-
     #Find the last semester with no backlogs
-    completed_semester = min(int(row[4].strip()) for row in studying_courses[1:])
+    studying_courses = []
+    for row in studying_table_rows[1:]:
+        record = []
+        row_soup = row.find_all("td")
+        if row_soup[1].string.strip() not in completed_courses:
+            studying_courses.append(row_soup[4].string.strip())
+
+    if len(studying_courses) != 0:
+        completed_semester = min(studying_courses)
+    else:
+        completed_semester = data[1][4]
 
     return data, completed_semester
 
@@ -85,7 +86,7 @@ def getCGPA(data, completed_semester):
     for semester in range(1,most_recent_semester+1): #index from 1st to most recent semester
         if not backlogs:
             courses = df.loc[df["COURSE_SEM"] == semester] #get all courses of particular semester
-            if semester == completed_semester and completed_semester != most_recent_semester: #check for backlogs in particular semester
+            if semester > completed_semester: #check for backlogs in particular semester
                 backlogs = True
                 record = [semester , "-", "-"]
                 result.append(record)
