@@ -99,16 +99,15 @@ def loginPage():
 
         #Display the disclaimer
         displayLoginNote()
-        # st.markdown("<p style = 'color:red;font-style: italic; font-weight: bold'>CGPA updated for students who cleared arrears!</p>", unsafe_allow_html=True)
 
-        demo_button = st.button("Demo")
+        # demo_button = st.button("Demo")
         
-        if demo_button:
-            st.session_state.rollno = st.secrets["DEMO_ROLL"]
-            st.session_state.password = st.secrets["DEMO_PASSWORD"]
-            st.session_state.studzone1_session = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
-            st.session_state.page = "processing"
-            st.rerun()
+        # if demo_button:
+        #     st.session_state.rollno = st.secrets["DEMO_ROLL"]
+        #     st.session_state.password = st.secrets["DEMO_PASSWORD"]
+        #     st.session_state.studzone1_session = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+        #     st.session_state.page = "processing"
+        #     st.rerun()
     
 
 def processingPage():
