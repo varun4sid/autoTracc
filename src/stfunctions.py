@@ -99,7 +99,7 @@ def loginPage():
 
         #Display the disclaimer
         displayLoginNote()
-
+        st.markdown("<p style = 'font-style: italic; font-weight: bold; color: purple;'>CGPA issue fixed!</p>", unsafe_allow_html=True)
         # demo_button = st.button("Demo")
         
         # if demo_button:
@@ -149,7 +149,6 @@ def dashBoardPage():
         st.balloons()
         st.session_state.balloons = False
     
-    st.markdown("<p style = 'opacity:0.5;font-style: italic; font-weight: bold'>CGPA updated for students who cleared arrears!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs

@@ -58,7 +58,7 @@ def getStudentCourses(session):
     else:
         completed_semester = data[1][4]
 
-    return data, completed_semester
+    return data, int(completed_semester)
 
 
 def getCGPA(data, completed_semester):
