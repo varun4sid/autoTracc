@@ -116,8 +116,11 @@ def processingPage():
     logging.warning(f'{logtime} USER : {str.upper(st.session_state.rollno)}')
     with st.spinner("Fetching user data..."):
         #Compute the necessary details and store in session state
-        st.session_state.greeting = greetUser(st.session_state.studzone1_session)      
-        
+        try:
+            st.session_state.greeting = greetUser(st.session_state.studzone1_session)      
+        except:
+            st.session_state.greeting = fallbackGreeting(st.session_state.studzone1_session)
+            
         #Get the date when attendance was recently updated
         try:
             st.session_state.attendance_data = getStudentAttendance(st.session_state.studzone1_session)

@@ -91,10 +91,10 @@ def greetUser(session):
     
     page_soup = BeautifulSoup(scholarship_page.text, "lxml")
     
-    #Get the personal info
+    #Get the personal info table
     personal_info_table = page_soup.find("td",{"class":"personal-info"})
     personal_info = personal_info_table.find_all("td")
-
+        
     #Get the username
     username = personal_info[0].string.strip()
     
@@ -113,4 +113,13 @@ def greetUser(session):
         greeting = "Welcome " + username + "!"
         st.session_state.balloons = False
 
+    return greeting
+
+
+def fallbackGreeting(session):
+    profile_url = "https://ecampus.psgtech.ac.in/studzone/Home/Profile"
+    profile_page = session.get(profile_url)
+    profile_soup = BeautifulSoup(profile_page.text, "lxml")
+    profile_name = profile_soup.find("h2", {"class":"profile-name"}).text
+    greeting = "Welcome " + profile_name + "!"
     return greeting
