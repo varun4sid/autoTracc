@@ -1,6 +1,6 @@
-def getStudentCourses(session):
-    from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup
 
+def getStudentCourses(session):
     #Get the courses page using the current session
     courses_page_url = "https://ecampus.psgtech.ac.in/studzone2/AttWfStudCourseSelection.aspx"
     courses_page = session.get(courses_page_url)
@@ -41,25 +41,33 @@ def getStudentCourses(session):
         row[6] = letter_grade[row[6].strip()]
         row[7] = int(row[7].strip())
 
-    #Get the currently studying courses table
-    studying_courses_table = courses_soup.find("table",{"id":"Prettydatagrid3"})
-    studying_table_rows = studying_courses_table.find_all("tr")
+    return data
 
-    #Find the last semester with no backlogs
-    studying_courses = []
-    for row in studying_table_rows[1:]:
+
+def getCompletedSemester(session):
+    results_page_url = "https://ecampus.psgtech.ac.in/studzone2/FrmEpsStudResult.aspx"
+    results_page     = session.get(results_page_url)
+    
+    results_page_soup = BeautifulSoup(results_page.text, "lxml")
+    results_table = results_page_soup.find("table",{"id":"DgResult"})
+    
+    rows = results_table.find_all("tr")
+    
+    data = []
+    for row in rows:
         record = []
-        row_soup = row.find_all("td")
-        if row_soup[1].string.strip() not in completed_courses:
-            studying_courses.append(row_soup[4].string.strip())
-
-    if len(studying_courses) != 0:
-        completed_semester = min(studying_courses)
-    else:
-        completed_semester = data[1][4]
-
-    return data, int(completed_semester)
-
+        for cell in row.find_all("td"):
+            record.append(cell.text)
+        data.append(record)
+    
+    #Returns the least semester with RA or next semester if none
+    for record in data[1:]:
+        if record[0] != ' ':
+            sem_index = int(record[0])
+        if record[5] == "RA":
+            return sem_index
+        
+    return sem_index+1
 
 def getCGPA(data, completed_semester):
     from pandas import DataFrame
@@ -86,7 +94,7 @@ def getCGPA(data, completed_semester):
     for semester in range(1,most_recent_semester+1): #index from 1st to most recent semester
         if not backlogs:
             courses = df.loc[df["COURSE_SEM"] == semester] #get all courses of particular semester
-            if semester > completed_semester: #check for backlogs in particular semester
+            if semester >= completed_semester: #check for backlogs in particular semester
                 backlogs = True
                 record = [semester , "-", "-"]
                 result.append(record)

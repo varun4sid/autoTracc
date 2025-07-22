@@ -98,8 +98,8 @@ def loginPage():
                         st.warning("Invalid Credentials! Try again!")
 
         #Display the disclaimer
-        displayLoginNote()
-        st.markdown("<p style = 'font-style: italic; font-weight: bold; color: purple;'>CGPA issue fixed!</p>", unsafe_allow_html=True)
+        # displayLoginNote()
+        st.markdown("<p style = 'font-weight: bold; color: orange;'>CGPA issue fixed! Students with RA will now see -</p>", unsafe_allow_html=True)
         # demo_button = st.button("Demo")
         
         # if demo_button:
@@ -132,7 +132,8 @@ def processingPage():
         #Get the cgpa data and handle exceptions 
         try:
             courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
-            courses_data, completed_semester = getStudentCourses(courses_home_page)
+            courses_data = getStudentCourses(courses_home_page)
+            completed_semester = getCompletedSemester(courses_home_page)
             st.session_state.cgpa_data = getCGPA(courses_data, completed_semester)
             course_list = pd.DataFrame(courses_data[1:],columns=courses_data[0])
             columns_order = ["S.No","COURSE CODE","COURSE TITLE","CREDITS","GRADE"]
