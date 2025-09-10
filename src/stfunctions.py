@@ -98,8 +98,7 @@ def loginPage():
                         st.warning("Invalid Credentials! Try again!")
 
         #Display the disclaimer
-        # displayLoginNote()
-        st.markdown("<p style = 'font-weight: bold; color: orange;'>CGPA issue fixed! Students with RA will now see -</p>", unsafe_allow_html=True)
+        displayLoginNote()
         # demo_button = st.button("Demo")
         
         # if demo_button:
