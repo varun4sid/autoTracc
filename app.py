@@ -1,5 +1,5 @@
 import streamlit as st
-from src.stfunctions import *
+from src.pages import dashBoardPage, loginPage, processingPage
 
 st.set_page_config(
     page_title = "autoTracc",
@@ -7,7 +7,7 @@ st.set_page_config(
 
 if "page" not in st.session_state:
     st.session_state.page = "login_page"
-    initializeSessionState()
+    loginPage.initializeSessionState()
 
 
 #Remove anchor from h1 titles
@@ -19,11 +19,11 @@ st.markdown("""
     
 #Call the corresponding function according to session_state
 if st.session_state.page == "login_page":
-    loginPage()
+    loginPage.loginPage()
 
 if st.session_state.page == "processing":
-    processingPage()
+    processingPage.processingPage()
 
 if st.session_state.page == "dashboard":
-    dashBoardPage()
-    dashBoardFooter()
+    dashBoardPage.dashBoardPage()
+    dashBoardPage.dashBoardFooter()
