@@ -13,8 +13,9 @@ if "page" not in st.session_state:
 #Remove anchor from h1 titles
 st.markdown("""
             <style>
-                [data-testid='stHeaderActionElements'] {display: none;}
-                body {text-align: center;}
+                [data-testid='stHeaderActionElements'] {display : none;}
+                body {text-align: center; margin: auto;}
+                [data-testid='stVerticalBlock'] {align-items:center}
             </style>""",unsafe_allow_html=True)
     
 #Call the corresponding function according to session_state
