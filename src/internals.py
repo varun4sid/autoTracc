@@ -81,13 +81,11 @@ def calculateTarget(internal,final):
     # target >= (final - 0.8 * internal) / 0.6
     required_target = (final - 0.8 * internal) / 0.6
     
-    # Use math.ceil to round up to get the minimum integer score needed
-    target = math.ceil(required_target)
-    
-    # Target must be at least 45 (minimum passing) and at most 100
-    if target < 45:
-        return 45
-    elif target > 100:
-        return '-'
+    # Check if target is achievable before applying ceiling
+    if required_target > 100:
+        return '-'  # Impossible to achieve
+    elif required_target <= 45:
+        return 45  # Minimum passing score
     else:
-        return target
+        # Use math.ceil to round up to get the minimum integer score needed
+        return math.ceil(required_target)

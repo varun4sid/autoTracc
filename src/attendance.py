@@ -81,7 +81,7 @@ def getCourseNames(session):
         #Build course initials more efficiently using list comprehension and direct range check
         course_initials = [
             word[0] for word in course_name.text.split() 
-            if word and 65 <= ord(word[0]) <= 90  # 'A' to 'Z' range check without creating list
+            if word and ord('A') <= ord(word[0]) <= ord('Z')  # Check for uppercase letters
         ]
 
         #Convert the list of initials to string and map it to the course code
@@ -141,7 +141,11 @@ def calculateLeaves(classes_present , classes_total , maintenance_percentage):
         if threshold < 1:
             classes_needed = (threshold * classes_total - classes_present) / (1 - threshold)
             # Use ceil to ensure enough classes are attended to meet threshold
-            return -math.ceil(classes_needed) if classes_needed > 0 else 0
+            # Return negative value to indicate classes that must be attended
+            if classes_needed > 0:
+                return -math.ceil(classes_needed)
+            else:
+                return 0  # Already at or above threshold
         else:
             return 0
     else:
