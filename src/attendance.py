@@ -97,10 +97,11 @@ def getAffordableLeaves(data,custom_percentage):
     result = []
 
     #Calculate affordable leaves for each course and update result
-    for i in range(len(data)):
-        row=[data[i][0]]                #initialize row with course id
-        classes_total = int(data[i][1])  #typecast attendance values to int
-        classes_present = int(data[i][4])
+    # Use enumerate for more Pythonic iteration (slightly more efficient)
+    for record in data:
+        row=[record[0]]                  #initialize row with course id
+        classes_total = int(record[1])   #typecast attendance values to int
+        classes_present = int(record[4])
 
         #Calculate the customized leaves for the user and update row
         custom_leaves = calculateLeaves(classes_present,classes_total,custom_percentage)
