@@ -4,6 +4,13 @@ from pandas import DataFrame
 # Cache for course names to avoid redundant API calls
 _course_names_cache = {}
 
+def clearCourseNamesCache():
+    """
+    Clear the course names cache. Useful for freeing memory after session ends.
+    """
+    global _course_names_cache
+    _course_names_cache.clear()
+
 def getStudentAttendance(session):
     #Get the student attendance page using the current session
     student_percentage_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/StudentPercentage"

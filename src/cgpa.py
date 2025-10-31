@@ -99,8 +99,9 @@ def getCGPA(data, completed_semester):
                 record = [semester , "-", "-"]
                 result.append(record)
             else:
-                semester_product = sum(courses["GRADE"] * courses["CREDITS"])
-                semester_credits = sum(courses["CREDITS"])
+                # Use dot product for more efficient calculation
+                semester_product = (courses["GRADE"] * courses["CREDITS"]).sum()
+                semester_credits = courses["CREDITS"].sum()
 
                 overall_product += semester_product
                 overall_credits += semester_credits

@@ -19,7 +19,7 @@ def createDriver():
     options.add_argument("--disable-gpu")
 
     #Start WebDriver
-    service = service = Service("/usr/bin/chromedriver")
+    service = Service("/usr/bin/chromedriver")
     driver = webdriver.Chrome(service=service, options=options)
     
     return driver
