@@ -50,8 +50,12 @@ def getCourseNames(session):
     """
     Get course names with caching to avoid redundant API calls.
     Uses session object ID as cache key for session-specific caching.
+    Note: Cache is cleared on logout via clearCourseNamesCache() to prevent unbounded growth.
     """
-    # Use session ID as cache key to avoid cross-session contamination
+    # Use session object ID as cache key - this is safe because:
+    # 1. Session objects are created once per login and reused
+    # 2. Cache is explicitly cleared on logout
+    # 3. Prevents cross-session contamination
     cache_key = id(session)
     
     # Return cached data if available
