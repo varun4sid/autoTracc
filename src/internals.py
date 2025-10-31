@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from pandas import DataFrame
 from .attendance import getCourseNames
+import math
 
 def getInternals(session):
     internals_url = "https://ecampus.psgtech.ac.in/studzone/ContinuousAssessment/CAMarksView"
@@ -80,8 +81,8 @@ def calculateTarget(internal,final):
     # target >= (final - 0.8 * internal) / 0.6
     required_target = (final - 0.8 * internal) / 0.6
     
-    # Round up to get the minimum integer score needed
-    target = int(required_target) if required_target == int(required_target) else int(required_target) + 1
+    # Use math.ceil to round up to get the minimum integer score needed
+    target = math.ceil(required_target)
     
     # Target must be at least 45 (minimum passing) and at most 100
     if target < 45:

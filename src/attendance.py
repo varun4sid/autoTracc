@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 from pandas import DataFrame
+import math
 
 # Cache for course names to avoid redundant API calls
 _course_names_cache = {}
@@ -97,7 +98,7 @@ def getAffordableLeaves(data,custom_percentage):
     result = []
 
     #Calculate affordable leaves for each course and update result
-    # Use enumerate for more Pythonic iteration (slightly more efficient)
+    # Direct iteration is more efficient than range(len())
     for record in data:
         row=[record[0]]                  #initialize row with course id
         classes_total = int(record[1])   #typecast attendance values to int
@@ -139,7 +140,8 @@ def calculateLeaves(classes_present , classes_total , maintenance_percentage):
         # x >= (threshold * total - present) / (1 - threshold)
         if threshold < 1:
             classes_needed = (threshold * classes_total - classes_present) / (1 - threshold)
-            return -int(classes_needed) if classes_needed > 0 else 0
+            # Use ceil to ensure enough classes are attended to meet threshold
+            return -math.ceil(classes_needed) if classes_needed > 0 else 0
         else:
             return 0
     else:
@@ -151,7 +153,8 @@ def calculateLeaves(classes_present , classes_total , maintenance_percentage):
         # x <= (present - threshold * total) / threshold
         if threshold > 0:
             leaves = (classes_present - threshold * classes_total) / threshold
-            return int(leaves)
+            # Use floor to ensure we stay above threshold (can't skip partial class)
+            return math.floor(leaves)
         else:
             return classes_total  # Can skip all if no maintenance required
     
