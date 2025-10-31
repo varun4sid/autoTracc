@@ -44,6 +44,9 @@ def dashBoardFooter():
     
     #On clicking logout button session state is reset to login page and script is rerun
     if logout_button:
+        # Clear cache to free memory before switching to login page
+        from src.attendance import clearCourseNamesCache
+        clearCourseNamesCache()
         st.session_state.page = "login_page"
         st.rerun()
         

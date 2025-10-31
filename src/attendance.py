@@ -1,6 +1,16 @@
 from bs4 import BeautifulSoup
 from pandas import DataFrame
+import math
 
+# Cache for course names to avoid redundant API calls
+_course_names_cache = {}
+
+def clearCourseNamesCache():
+    """
+    Clear the course names cache. Useful for freeing memory after session ends.
+    """
+    global _course_names_cache
+    _course_names_cache.clear()
 
 def getStudentAttendance(session):
     #Get the student attendance page using the current session
@@ -27,7 +37,8 @@ def getStudentAttendance(session):
         for cell in row.find_all("td"):
             record.append(cell.text)
         try:
-            record[0] = ''.join( [ record[0], '   -   ', course_map[record[0]] ] )
+            # Use f-string for more efficient string formatting
+            record[0] = f"{record[0]}   -   {course_map[record[0]]}"
         except KeyError:
             continue
         data.append(record)
@@ -36,6 +47,21 @@ def getStudentAttendance(session):
 
 
 def getCourseNames(session):
+    """
+    Get course names with caching to avoid redundant API calls.
+    Uses session object ID as cache key for session-specific caching.
+    Note: Cache is cleared on logout via clearCourseNamesCache() to prevent unbounded growth.
+    """
+    # Use session object ID as cache key - this is safe because:
+    # 1. Session objects are created once per login and reused
+    # 2. Cache is explicitly cleared on logout
+    # 3. Prevents cross-session contamination
+    cache_key = id(session)
+    
+    # Return cached data if available
+    if cache_key in _course_names_cache:
+        return _course_names_cache[cache_key]
+    
     #Find the course details page url
     courses_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/courseplan"
 
@@ -56,17 +82,18 @@ def getCourseNames(session):
         course_code = course.find("h5")
         course_name = course.find("h6")
 
-        #Initialize an empty list
-        course_initials = []
-        for words in course_name.text.split():
-            #Check for special characters
-            if ord(words[0]) in list(range(65,91)):
-                #Append the first letter of each word in course name
-                course_initials.append(words[0])
+        #Build course initials more efficiently using list comprehension and direct range check
+        course_initials = [
+            word[0] for word in course_name.text.split() 
+            if word and ord('A') <= ord(word[0]) <= ord('Z')  # Check for uppercase letters
+        ]
 
         #Convert the list of initials to string and map it to the course code
         course_map[course_code.text] = ''.join(course_initials)
 
+    # Cache the result for future use
+    _course_names_cache[cache_key] = course_map
+    
     return course_map
 
 
@@ -75,10 +102,11 @@ def getAffordableLeaves(data,custom_percentage):
     result = []
 
     #Calculate affordable leaves for each course and update result
-    for i in range(len(data)):
-        row=[data[i][0]]                #initialize row with course id
-        classes_total = int(data[i][1])  #typecast attendance values to int
-        classes_present = int(data[i][4])
+    # Direct iteration is more efficient than range(len())
+    for record in data:
+        row=[record[0]]                  #initialize row with course id
+        classes_total = int(record[1])   #typecast attendance values to int
+        classes_present = int(record[4])
 
         #Calculate the customized leaves for the user and update row
         custom_leaves = calculateLeaves(classes_present,classes_total,custom_percentage)
@@ -95,21 +123,47 @@ def getAffordableLeaves(data,custom_percentage):
     
 
 def calculateLeaves(classes_present , classes_total , maintenance_percentage):
-    #Initialize leaves with 0
-    affordable_leaves = 0
-    #Let i represent the ith class from last updated date
-    i=1
-
-    #First check whether or not current attendance meets maintenance and then proceed
-    if float(classes_present/classes_total)*100 < maintenance_percentage:
-        #Simulate attendance after attending i classes while also checking if attendance met at each i
-        while float((classes_present + i)/(classes_total + i))*100 <= maintenance_percentage:
-            affordable_leaves -=1 #negative leaves denote number of unskippable classes to meet maintenance
-            i+=1
-    #Else block is run if maintenance is met
+    """
+    Calculate affordable leaves using direct mathematical formula instead of simulation.
+    This is significantly faster than iterative simulation, especially for large differences.
+    """
+    # Convert to percentage threshold (e.g., 75% -> 0.75)
+    threshold = maintenance_percentage / 100.0
+    
+    # Current attendance percentage
+    current_percentage = classes_present / classes_total if classes_total > 0 else 0
+    
+    # If current attendance is below maintenance
+    if current_percentage < threshold:
+        # Calculate classes needed to attend to meet maintenance
+        # Formula: (present + x) / (total + x) >= threshold
+        # Solving: present + x >= threshold * (total + x)
+        # present + x >= threshold * total + threshold * x
+        # x - threshold * x >= threshold * total - present
+        # x * (1 - threshold) >= threshold * total - present
+        # x >= (threshold * total - present) / (1 - threshold)
+        if threshold < 1:
+            classes_needed = (threshold * classes_total - classes_present) / (1 - threshold)
+            # Use ceil to ensure enough classes are attended to meet threshold
+            # Return negative value to indicate classes that must be attended
+            if classes_needed > 0:
+                return -math.ceil(classes_needed)
+            else:
+                return 0  # Already at or above threshold
+        else:
+            return 0
     else:
-        while float(classes_present/(classes_total + i))*100 >= maintenance_percentage:
-            affordable_leaves +=1
-            i+=1
-
-    return affordable_leaves
+        # Calculate leaves that can be taken while maintaining threshold
+        # Formula: present / (total + x) >= threshold
+        # Solving: present >= threshold * (total + x)
+        # present >= threshold * total + threshold * x
+        # present - threshold * total >= threshold * x
+        # x <= (present - threshold * total) / threshold
+        if threshold > 0:
+            leaves = (classes_present - threshold * classes_total) / threshold
+            # Use floor to ensure we stay above threshold (can't skip partial class)
+            return math.floor(leaves)
+        else:
+            return classes_total  # Can skip all if no maintenance required
+    
+    return 0

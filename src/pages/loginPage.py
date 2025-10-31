@@ -81,6 +81,7 @@ def initializeSessionState():
         "attendance_slider": 75,
         "attendance_table": "",
         "studzone1_session": 0,
+        "studzone2_session": 0,  # Cache for studzone2 session to avoid redundant logins
         "attendance_data": "",
         "attendance_available": False,
         "cgpa_data":"",

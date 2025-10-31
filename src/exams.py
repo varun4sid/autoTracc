@@ -38,7 +38,8 @@ def getExamSchedule(session):
         for index in required_indices:
             row.append(exam_contents[index].text[1:].strip())
         try:
-            row[0] = ''.join( [ row[0], '   -   ', course_map[row[0]] ] )
+            # Use f-string for more efficient string formatting
+            row[0] = f"{row[0]}   -   {course_map[row[0]]}"
         except KeyError:
             continue
         schedule_data.append(row)

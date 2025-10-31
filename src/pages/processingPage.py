@@ -27,7 +27,11 @@ def processingPage():
             
         #Get the cgpa data and handle exceptions 
         try:
-            courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
+            # Reuse studzone2 session if already created, otherwise create new one
+            if "studzone2_session" not in st.session_state:
+                st.session_state.studzone2_session = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
+            
+            courses_home_page = st.session_state.studzone2_session
             courses_data = getStudentCourses(courses_home_page)
             completed_semester = getCompletedSemester(courses_home_page)
             st.session_state.cgpa_data = getCGPA(courses_data, completed_semester)
