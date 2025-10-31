@@ -29,7 +29,8 @@ def getInternals(session):
         for cell in cells:
             record.append(cell.text)
         try:
-            record[0] = ''.join( [ record[0], '   -   ', course_map[record[0]] ] )
+            # Use f-string for more efficient string formatting
+            record[0] = f"{record[0]}   -   {course_map[record[0]]}"
         except KeyError:
             continue
         theory_table.append(record)
@@ -56,21 +57,36 @@ def getTargetScore(theory_table, target):
             sem_score = calculateTarget(record[-2],target)
             row.extend([record[-2],pass_score,sem_score])
             row[1] = float(row[1])
-            row[1] = '{:.2f}'.format(row[1])
+            row[1] = f'{row[1]:.2f}'
             if not final:
-                row[1] = ''.join( [row[1], '*'] )
+                row[1] = f'{row[1]}*'
         result.append(row)
         
     return result
     
 
 def calculateTarget(internal,final):
+    """
+    Calculate required end semester exam score using direct mathematical formula.
+    Formula: 0.8 * internal + 0.6 * target >= final
+    Solving for target: target >= (final - 0.8 * internal) / 0.6
+    """
     # 0.8 = 0.4(internals weightage) * 2(convert /50 to /100)
     # 0.6 = (end semester exam weightage)
-    internal = (float)(internal)
-    final    = (float)(final)
-    for target in range(45,101):
-        if (float)(0.8 * internal) + (float)(0.6 * target) >= final:
-            return target
-        
-    return '-'
+    internal = float(internal)
+    final = float(final)
+    
+    # Calculate the minimum required target score
+    # target >= (final - 0.8 * internal) / 0.6
+    required_target = (final - 0.8 * internal) / 0.6
+    
+    # Round up to get the minimum integer score needed
+    target = int(required_target) if required_target == int(required_target) else int(required_target) + 1
+    
+    # Target must be at least 45 (minimum passing) and at most 100
+    if target < 45:
+        return 45
+    elif target > 100:
+        return '-'
+    else:
+        return target

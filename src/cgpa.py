@@ -105,11 +105,12 @@ def getCGPA(data, completed_semester):
                 overall_product += semester_product
                 overall_credits += semester_credits
 
-                semester_gpa  = float(semester_product / semester_credits)
-                semester_cgpa = float(overall_product / overall_credits)
+                semester_gpa  = semester_product / semester_credits
+                semester_cgpa = overall_product / overall_credits
                 
-                semester_gpa = '{:.5f}'.format(semester_gpa)[:-1]
-                semester_cgpa = '{:.5f}'.format(semester_cgpa)[:-1]
+                # Use f-string for more efficient formatting (4 decimal places instead of 5 then truncating)
+                semester_gpa = f'{semester_gpa:.4f}'
+                semester_cgpa = f'{semester_cgpa:.4f}'
                 
                 record = [semester , semester_gpa , semester_cgpa]
                 result.append(record)    
