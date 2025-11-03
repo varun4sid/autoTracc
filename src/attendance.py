@@ -27,7 +27,7 @@ def getStudentAttendance(session):
         for cell in row.find_all("td"):
             record.append(cell.text)
         try:
-            record[0] = ''.join( [ record[0], '   -   ', course_map[record[0]] ] )
+            record[0] = f"{record[0]}   -   {course_map[record[0]]}"
         except KeyError:
             continue
         data.append(record)

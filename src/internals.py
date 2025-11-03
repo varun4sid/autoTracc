@@ -56,9 +56,9 @@ def getTargetScore(theory_table, target):
             sem_score = calculateTarget(record[-2],target)
             row.extend([record[-2],pass_score,sem_score])
             row[1] = float(row[1])
-            row[1] = '{:.2f}'.format(row[1])
+            row[1] = f'{row[1]:.2f}'
             if not final:
-                row[1] = ''.join( [row[1], '*'] )
+                row[1] = f'{row[1]}*'
         result.append(row)
         
     return result

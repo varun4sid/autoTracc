@@ -99,14 +99,14 @@ def getCGPA(data, completed_semester):
                 record = [semester , "-", "-"]
                 result.append(record)
             else:
-                semester_product = sum(courses["GRADE"] * courses["CREDITS"])
-                semester_credits = sum(courses["CREDITS"])
+                semester_product = (courses["GRADE"] * courses["CREDITS"]).sum()
+                semester_credits = courses["CREDITS"].sum()
 
                 overall_product += semester_product
                 overall_credits += semester_credits
 
-                semester_gpa  = float(semester_product / semester_credits)
-                semester_cgpa = float(overall_product / overall_credits)
+                semester_gpa  = semester_product / semester_credits
+                semester_cgpa = overall_product / overall_credits
                 
                 semester_gpa = '{:.5f}'.format(semester_gpa)[:-1]
                 semester_cgpa = '{:.5f}'.format(semester_cgpa)[:-1]
