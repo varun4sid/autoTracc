@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
-from pandas import DataFrame
 from .attendance import getCourseNames
+import math
 
 def getInternals(session):
     internals_url = "https://ecampus.psgtech.ac.in/studzone/ContinuousAssessment/CAMarksView"
@@ -69,8 +69,12 @@ def calculateTarget(internal,final):
     # 0.6 = (end semester exam weightage)
     internal = (float)(internal)
     final    = (float)(final)
-    for target in range(45,101):
-        if (float)(0.8 * internal) + (float)(0.6 * target) >= final:
-            return target
-        
-    return '-'
+    
+    target = (final - 0.8 * internal) / 0.6
+    
+    if target > 100:
+        return '-'
+    elif target > 45:
+        return math.ceil(target)
+    else:
+        return 45
