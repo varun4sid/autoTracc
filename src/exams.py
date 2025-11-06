@@ -1,6 +1,6 @@
 from pandas import DataFrame
 from bs4 import BeautifulSoup
-from .attendance import getCourseNames
+import streamlit as st
 
 def getExamSchedule(session):
     #Get the exam schedule page
@@ -23,7 +23,7 @@ def getExamSchedule(session):
     schedule_data = []
 
     #Map the course codes with course initials and store in list of records
-    course_map = getCourseNames(session)
+    course_map = st.session_state.course_map
 
     #Set the indices for required data
     required_indices = [0,2,4]

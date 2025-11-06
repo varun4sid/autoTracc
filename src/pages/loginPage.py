@@ -91,6 +91,7 @@ def initializeSessionState():
         "internals_data": "",
         "target_slider": "",
         "internals_table": "",
+        "course_map": ""
     }
 
     for key, value in defaults.items():

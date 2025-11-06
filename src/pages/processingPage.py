@@ -4,7 +4,7 @@ import datetime
 import pytz
 import pandas as pd
 
-from src.attendance import getStudentAttendance
+from src.attendance import getStudentAttendance, getCourseNames
 from src.cgpa import *
 from src.pagerequests import *
 
@@ -37,6 +37,8 @@ def processingPage():
             st.session_state.cgpa_available = True
         except:
             st.session_state.cgpa_available = False
+
+        st.session_state.course_map = getCourseNames(st.session_state.studzone1_session)
 
         st.session_state.page = "dashboard"
         st.rerun()

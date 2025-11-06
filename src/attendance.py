@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from pandas import DataFrame
-
+import streamlit as st
 
 def getStudentAttendance(session):
     #Get the student attendance page using the current session
@@ -17,7 +17,7 @@ def getStudentAttendance(session):
     table_rows = attendance_table.find_all("tr")
 
     #Get the mapping of course code to course name's initials
-    course_map = getCourseNames(session)
+    course_map = st.session_state.course_map
 
     #Extract the values and append it to a list of records/rows
     data = []
@@ -56,14 +56,12 @@ def getCourseNames(session):
         course_code = course.find("h5")
         course_name = course.find("h6")
 
-        #Initialize an empty list
-        course_initials = []
-        for words in course_name.text.split():
-            #Check for special characters
-            if ord(words[0]) in list(range(65,91)):
-                #Append the first letter of each word in course name
-                course_initials.append(words[0])
-
+        #Check and append uppercase letters
+        course_initials = [
+            word[0] for word in course_name.text.split() 
+            if word and ord('A') <= ord(word[0]) <= ord('Z')
+        ]
+                
         #Convert the list of initials to string and map it to the course code
         course_map[course_code.text] = ''.join(course_initials)
 

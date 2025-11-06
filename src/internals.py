@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from .attendance import getCourseNames
+import streamlit as st
 import math
 
 def getInternals(session):
@@ -19,7 +19,7 @@ def getInternals(session):
     
     theory_table_rows = theory_table_body.find_all("tr")
     
-    course_map = getCourseNames(session)
+    course_map = st.session_state.course_map
     
     #Get the theory internal marks in the form of list
     theory_table = []
