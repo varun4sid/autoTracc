@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from pandas import DataFrame
 import streamlit as st
+import math
 
 def getStudentAttendance(session):
     #Get the student attendance page using the current session
@@ -73,10 +74,10 @@ def getAffordableLeaves(data,custom_percentage):
     result = []
 
     #Calculate affordable leaves for each course and update result
-    for i in range(len(data)):
-        row=[data[i][0]]                #initialize row with course id
-        classes_total = int(data[i][1])  #typecast attendance values to int
-        classes_present = int(data[i][4])
+    for record in data:
+        row=[record[0]]                #initialize row with course id
+        classes_total = int(record[1])  #typecast attendance values to int
+        classes_present = int(record[4])
 
         #Calculate the customized leaves for the user and update row
         custom_leaves = calculateLeaves(classes_present,classes_total,custom_percentage)
@@ -93,21 +94,23 @@ def getAffordableLeaves(data,custom_percentage):
     
 
 def calculateLeaves(classes_present , classes_total , maintenance_percentage):
-    #Initialize leaves with 0
-    affordable_leaves = 0
-    #Let i represent the ith class from last updated date
-    i=1
+    threshold = maintenance_percentage / 100.0
+    print(threshold)
+    
+    current_percentage = classes_present / classes_total if classes_total > 0 else 0
 
-    #First check whether or not current attendance meets maintenance and then proceed
-    if float(classes_present/classes_total)*100 < maintenance_percentage:
-        #Simulate attendance after attending i classes while also checking if attendance met at each i
-        while float((classes_present + i)/(classes_total + i))*100 <= maintenance_percentage:
-            affordable_leaves -=1 #negative leaves denote number of unskippable classes to meet maintenance
-            i+=1
-    #Else block is run if maintenance is met
+    if current_percentage < threshold:
+        if threshold < 1:
+            classes_needed = (threshold * classes_total - classes_present) / (1 - threshold)
+            if classes_needed > 0:
+                return -math.ceil(classes_needed)
+            else:
+                return 0
+        else:
+            return 0
     else:
-        while float(classes_present/(classes_total + i))*100 >= maintenance_percentage:
-            affordable_leaves +=1
-            i+=1
-
-    return affordable_leaves
+        if threshold > 0:
+            affordable_leaves = (classes_present - threshold * classes_total) /threshold
+            return math.floor(affordable_leaves)
+        else:
+            return classes_total

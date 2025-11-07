@@ -19,6 +19,7 @@ def processingPage():
             
         #Get the date when attendance was recently updated
         try:
+            st.session_state.course_map = getCourseNames(st.session_state.studzone1_session)
             st.session_state.attendance_data = getStudentAttendance(st.session_state.studzone1_session)
             st.session_state.updated_date = st.session_state.attendance_data[1][9]
             st.session_state.attendance_available = True
@@ -37,8 +38,6 @@ def processingPage():
             st.session_state.cgpa_available = True
         except:
             st.session_state.cgpa_available = False
-
-        st.session_state.course_map = getCourseNames(st.session_state.studzone1_session)
 
         st.session_state.page = "dashboard"
         st.rerun()
