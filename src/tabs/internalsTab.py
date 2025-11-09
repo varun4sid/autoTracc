@@ -1,5 +1,6 @@
 import streamlit as st
-from src.internals import *
+from src.internals import getInternals, calculateTarget
+from src.state_manager import get_internals_table
 
 
 def internalsTab():
@@ -15,7 +16,7 @@ def internalsTab():
         customScore()
 
 
-def renderInternals():
+def renderInternals(internals_table):
     table_header = f"""
         <table style='margin:auto;'>
             <tr>
@@ -31,7 +32,7 @@ def renderInternals():
     
     table_body = ""
     
-    for course in st.session_state.internals_table:
+    for course in internals_table:
         table_body += f"<tr><td style='text-align:left;'>{course[0]}</td><td style='text-align:right;'>{course[1]}</td>"
         table_body += f"<td>{course[2]}</td><td>{course[3]}</td></tr>"
         
@@ -83,9 +84,13 @@ def internalsUI():
     
     st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
     
-    st.session_state.internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+    # Get internals table using cached computation
+    internals_table = get_internals_table(st.session_state.target_slider)
     
-    renderInternals()
+    if internals_table:
+        renderInternals(internals_table)
+    else:
+        st.error("Unable to display internals table")
     
     st.warning(""" '-' denotes you can't achieve target with your current internal marks                
                     * beside the internal marks denotes final mark entry is pending

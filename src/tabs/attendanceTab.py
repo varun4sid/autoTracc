@@ -1,5 +1,5 @@
 import streamlit as st
-from src.attendance import getAffordableLeaves
+from src.state_manager import get_attendance_table, get_updated_date
 
 
 def attendanceTab():
@@ -22,12 +22,18 @@ def attendanceUI():
         value = 75,
     )
 
-    #Update the table after slider event
-    st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.attendance_slider)
-
-    #Display the table after latest update
-    st.dataframe(st.session_state.attendance_table, hide_index = True)
-    st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {st.session_state.updated_date}<br><br></h5>", unsafe_allow_html=True)
+    #Get the table using cached computation
+    attendance_table = get_attendance_table(st.session_state.attendance_slider)
+    
+    if attendance_table is not None:
+        #Display the table after latest update
+        st.dataframe(attendance_table, hide_index = True)
+        
+        #Get updated date using cached computation
+        updated_date = get_updated_date()
+        st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {updated_date}<br><br></h5>", unsafe_allow_html=True)
+    else:
+        st.error("Unable to display attendance table")
 
     #Display notes for the user
     st.warning("""NOTE : '-' next to number of leaves denotes classes must be attended

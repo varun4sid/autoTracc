@@ -7,6 +7,7 @@ import pandas as pd
 from src.attendance import getStudentAttendance, getCourseNames
 from src.cgpa import *
 from src.pagerequests import *
+from src.state_manager import StateManager
 
 def processingPage():
     logger()
@@ -21,7 +22,6 @@ def processingPage():
         try:
             st.session_state.course_map = getCourseNames(st.session_state.studzone1_session)
             st.session_state.attendance_data = getStudentAttendance(st.session_state.studzone1_session)
-            st.session_state.updated_date = st.session_state.attendance_data[1][9]
             st.session_state.attendance_available = True
         except:
             st.session_state.attendance_available = False
@@ -38,6 +38,9 @@ def processingPage():
             st.session_state.cgpa_available = True
         except:
             st.session_state.cgpa_available = False
+
+        # Clear sensitive data after authentication and data fetching
+        StateManager.clear_sensitive_data()
 
         st.session_state.page = "dashboard"
         st.rerun()

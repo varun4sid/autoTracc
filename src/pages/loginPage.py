@@ -1,5 +1,6 @@
 import streamlit as st
 from src.pagerequests import getHomePageAttendance
+from src.state_manager import StateManager
 
 
 def loginPage():
@@ -73,27 +74,5 @@ def displayDemoButton():
         
         
 def initializeSessionState():
-    defaults = {
-        "rollno": "",
-        "password": "",
-        "greeting": "",
-        "balloons":False,
-        "attendance_slider": 75,
-        "attendance_table": "",
-        "studzone1_session": 0,
-        "attendance_data": "",
-        "attendance_available": False,
-        "cgpa_data":"",
-        "courses_list":"",
-        "cgpa_available": False,
-        "custom_internals": 29,
-        "custom_target": 50,
-        "internals_data": "",
-        "target_slider": "",
-        "internals_table": "",
-        "course_map": ""
-    }
-
-    for key, value in defaults.items():
-        if key not in st.session_state:
-            st.session_state[key] = value
+    """Initialize session state using centralized StateManager."""
+    StateManager.initialize()

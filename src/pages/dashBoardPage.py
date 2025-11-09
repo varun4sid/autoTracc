@@ -1,5 +1,6 @@
 import streamlit as st 
 from src.tabs import attendanceTab, cgpaTab, feedbackTab, internalsTab, examsTab
+from src.state_manager import StateManager
 
 
 def dashBoardPage():
@@ -44,7 +45,8 @@ def dashBoardFooter():
     
     #On clicking logout button session state is reset to login page and script is rerun
     if logout_button:
-        st.session_state.page = "login_page"
+        # Reset all state to defaults using StateManager
+        StateManager.reset()
         st.rerun()
         
     st.markdown("""<p>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
