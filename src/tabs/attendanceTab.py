@@ -22,11 +22,21 @@ def attendanceUI():
         value = 75,
     )
 
-    #Update the table after slider event
-    st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.attendance_slider)
+    #Update the tables after slider event
+    st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.attendance_slider, 0)
+    st.session_state.exemption_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.attendance_slider, 1)
+    st.session_state.medical_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.attendance_slider, 2)
 
-    #Display the table after latest update
-    st.dataframe(st.session_state.attendance_table, hide_index = True)
+    #Display the tables after latest update
+    
+    tabs = st.tabs(["Physical", "Exemption", "Medical"])
+    with tabs[0]:
+        st.dataframe(st.session_state.attendance_table, hide_index = True)
+    with tabs[1]:
+        st.dataframe(st.session_state.exemption_table, hide_index = True)
+    with tabs[2]:
+        st.dataframe(st.session_state.medical_table, hide_index = True)
+    
     st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {st.session_state.updated_date}<br><br></h5>", unsafe_allow_html=True)
 
     #Display notes for the user

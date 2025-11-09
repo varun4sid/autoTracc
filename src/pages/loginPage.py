@@ -80,6 +80,8 @@ def initializeSessionState():
         "balloons":False,
         "attendance_slider": 75,
         "attendance_table": "",
+        "exemption_table": "",
+        "medical_table": "",
         "studzone1_session": 0,
         "attendance_data": "",
         "attendance_available": False,

@@ -69,15 +69,20 @@ def getCourseNames(session):
     return course_map
 
 
-def getAffordableLeaves(data,custom_percentage):
+def getAffordableLeaves(data,custom_percentage, mode):
     #Declare an empty result table
     result = []
 
     #Calculate affordable leaves for each course and update result
     for record in data:
-        row=[record[0]]                #initialize row with course id
-        classes_total = int(record[1])  #typecast attendance values to int
-        classes_present = int(record[4])
+        row=[record[0]]
+        classes_total = int(record[1])
+        if mode == 0:
+            classes_present = int(record[4])
+        elif mode == 1:
+            classes_present = int(record[4]) + int(record[2])
+        elif mode == 2:
+            classes_present = math.floor(int(record[1]) * int(record[7]) / 100)
 
         #Calculate the customized leaves for the user and update row
         custom_leaves = calculateLeaves(classes_present,classes_total,custom_percentage)
@@ -95,7 +100,6 @@ def getAffordableLeaves(data,custom_percentage):
 
 def calculateLeaves(classes_present , classes_total , maintenance_percentage):
     threshold = maintenance_percentage / 100.0
-    print(threshold)
     
     current_percentage = classes_present / classes_total if classes_total > 0 else 0
 
