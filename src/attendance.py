@@ -1,5 +1,4 @@
 from bs4 import BeautifulSoup
-from pandas import DataFrame
 import streamlit as st
 import math
 
@@ -91,12 +90,8 @@ def getAffordableLeaves(data,custom_percentage, mode):
         row.append(custom_leaves)
         result.append(row)
 
-    #Create a dataframe from the result list with headers
-    result_header = ["COURSE_CODE",f"AFFORDABLE_LEAVES({custom_percentage}%)"]
-    df = DataFrame(result,columns=result_header)
+    return result
 
-    return df
-    
 
 def calculateLeaves(classes_present , classes_total , maintenance_percentage):
     threshold = maintenance_percentage / 100.0
@@ -106,8 +101,9 @@ def calculateLeaves(classes_present , classes_total , maintenance_percentage):
     if current_percentage < threshold:
         if threshold < 1:
             classes_needed = (threshold * classes_total - classes_present) / (1 - threshold)
+            classes_needed = math.ceil(classes_needed - 1e-12)
             if classes_needed > 0:
-                return -math.ceil(classes_needed)
+                return -classes_needed
             else:
                 return 0
         else:

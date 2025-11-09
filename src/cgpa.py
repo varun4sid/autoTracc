@@ -81,8 +81,7 @@ def getCGPA(data, completed_semester):
     required_columns = ["COURSE_SEM","GRADE","CREDITS"]
     df = df[required_columns]
 
-    #Declare an empty result table with header
-    result_headers = ["SEMESTER","GPA","CGPA"]
+    #Declare an empty result table
     result = []
     
     #Initialize to calculate cgpa upto each semester
@@ -117,6 +116,4 @@ def getCGPA(data, completed_semester):
             record = [semester , "-", "-"]
             result.append(record)
     
-    result = DataFrame(result, columns=result_headers)
-
     return result

@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 
 
@@ -14,8 +15,10 @@ def cgpaTab():
 def cgpaUI():
     tab1,tab2 = st.tabs(["CGPA", "Course List"])
     
+    df_columns = ["SEMESTER","GPA","CGPA"]
     with tab1:
-        st.dataframe(st.session_state.cgpa_data, hide_index = True)
+        df = pd.DataFrame(st.session_state.cgpa_data, columns=df_columns)
+        st.dataframe(df, hide_index = True)
         st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
     with tab2:
         st.write("Swipe left on table if you're on mobile to see credits and grade columns")

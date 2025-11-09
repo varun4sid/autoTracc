@@ -1,4 +1,3 @@
-from pandas import DataFrame
 from bs4 import BeautifulSoup
 import streamlit as st
 
@@ -42,11 +41,5 @@ def getExamSchedule(session):
         except KeyError:
             continue
         schedule_data.append(row)
-
-    #Set the dataframe headers
-    df_headers = ["COURSE_CODE","DATE","TIME"]
-
-    #Create and return a dataframe
-    df = DataFrame(schedule_data, columns = df_headers)
     
-    return df
+    return schedule_data

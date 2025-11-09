@@ -1,5 +1,6 @@
 import streamlit as st
 from src.attendance import getAffordableLeaves
+import pandas as pd
 
 
 def attendanceTab():
@@ -30,13 +31,17 @@ def attendanceUI():
     #Display the tables after latest update
     
     tabs = st.tabs(["Physical", "Exemption", "Medical"])
+    df_columns = ["COURSE_CODE",f"AFFORDABLE_LEAVES({st.session_state.attendance_slider}%)"]
     with tabs[0]:
-        st.dataframe(st.session_state.attendance_table, hide_index = True)
+        df = pd.DataFrame(st.session_state.attendance_table, columns=df_columns)
+        st.dataframe(df, hide_index = True)
     with tabs[1]:
-        st.dataframe(st.session_state.exemption_table, hide_index = True)
+        df = pd.DataFrame(st.session_state.exemption_table, columns=df_columns)
+        st.dataframe(df, hide_index = True)
     with tabs[2]:
-        st.dataframe(st.session_state.medical_table, hide_index = True)
-    
+        df = pd.DataFrame(st.session_state.medical_table, columns=df_columns)
+        st.dataframe(df, hide_index = True)
+
     st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {st.session_state.updated_date}<br><br></h5>", unsafe_allow_html=True)
 
     #Display notes for the user
