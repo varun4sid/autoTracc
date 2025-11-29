@@ -72,8 +72,9 @@ def getCompletedSemester(session):
 def getCGPA(data, completed_semester):
     from pandas import DataFrame
 
-    #Get the most recent semester for iterating
+    #Get the semester range (lateral entry students start from sem 3, so handle explicitly)
     most_recent_semester = data[1][4]
+    first_semester = data[-1][4]
 
     #Create a dataframe with required columns
     data[0][4]="COURSE_SEM"
@@ -90,7 +91,7 @@ def getCGPA(data, completed_semester):
 
     #Initialize backlogs flag to handle pending cgpa calculation
     backlogs = False
-    for semester in range(1,most_recent_semester+1): #index from 1st to most recent semester
+    for semester in range(first_semester, most_recent_semester+1):
         if not backlogs:
             courses = df.loc[df["COURSE_SEM"] == semester] #get all courses of particular semester
             if semester >= completed_semester: #check for backlogs in particular semester
@@ -100,15 +101,19 @@ def getCGPA(data, completed_semester):
             else:
                 semester_product = (courses["GRADE"] * courses["CREDITS"]).sum()
                 semester_credits = courses["CREDITS"].sum()
-
-                overall_product += semester_product
-                overall_credits += semester_credits
-
-                semester_gpa  = semester_product / semester_credits
-                semester_cgpa = overall_product / overall_credits
                 
-                semester_gpa = '{:.5f}'.format(semester_gpa)[:-1]
-                semester_cgpa = '{:.5f}'.format(semester_cgpa)[:-1]
+                if not semester_credits:
+                    semester_gpa = "Pending"
+                    semester_cgpa = "Pending"
+                else:
+                    overall_product += semester_product
+                    overall_credits += semester_credits
+
+                    semester_gpa  = semester_product / semester_credits
+                    semester_cgpa = overall_product / overall_credits
+                    
+                    semester_gpa = '{:.5f}'.format(semester_gpa)[:-1]
+                    semester_cgpa = '{:.5f}'.format(semester_cgpa)[:-1]
                 
                 record = [semester , semester_gpa , semester_cgpa]
                 result.append(record)    
