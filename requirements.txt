@@ -49,7 +49,7 @@ trio==0.29.0
 trio-websocket==0.12.2
 typing_extensions==4.12.2
 tzdata==2024.2
-urllib3==2.5.0
+urllib3==2.6.0
 watchdog==6.0.0
 webdriver-manager==4.0.2
 websocket-client==1.8.0
