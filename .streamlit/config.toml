@@ -1,0 +1,6 @@
+[client]
+showSidebarNavigation = false
+
+[server]
+showEmailPrompt = false
+runOnSave = true
