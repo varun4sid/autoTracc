@@ -1,5 +1,5 @@
 import streamlit as st
-from src.pages import dashBoardPage, loginPage, processingPage
+from pages import dashBoardPage, loginPage, processingPage
 
 st.set_page_config(
     page_title = "autoTracc",
