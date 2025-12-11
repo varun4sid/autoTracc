@@ -29,12 +29,12 @@ def processingPage():
         #Get the cgpa data and handle exceptions 
         try:
             courses_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
-            courses_data = getStudentCourses(courses_home_page)
+            completed_courses, st.session_state.current_courses = getStudentCourses(courses_home_page)
             completed_semester = getCompletedSemester(courses_home_page)
-            st.session_state.cgpa_data = getCGPA(courses_data, completed_semester)
-            course_list = pd.DataFrame(courses_data[1:],columns=courses_data[0])
+            st.session_state.cgpa_data = getCGPA(completed_courses, completed_semester)
+            completed_courses_list = pd.DataFrame(completed_courses[1:],columns=completed_courses[0])
             columns_order = ["S.No","COURSE CODE","COURSE TITLE","CREDITS","GRADE"]
-            st.session_state.courses_list = course_list[columns_order]
+            st.session_state.completed_courses_list = completed_courses_list[columns_order]
             st.session_state.cgpa_available = True
         except:
             st.session_state.cgpa_available = False

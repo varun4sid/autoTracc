@@ -8,20 +8,24 @@ def getStudentCourses(session):
     #Get the html from the courses page
     courses_soup = BeautifulSoup(courses_page.text, "lxml")
 
-    #Get the completed courses table element
-    completed_courses_table = courses_soup.find("table",{"id":"PDGCourse"})
+    completed_courses = getCompletedCourses(courses_soup)
+    current_courses = getCurrentCourses(courses_soup)
+    
+    return completed_courses, current_courses
 
-    #Get the table rows
+
+def getCompletedCourses(soup):
+    completed_courses_table = soup.find("table",{"id":"PDGCourse"})
     completed_table_rows = completed_courses_table.find_all("tr")
     
     #Extract the records and values and store in list of lists
-    data = []
+    results = []
 
     for row in completed_table_rows:
         record=[]
         for cell in row.find_all("td"):
             record.append(cell.text)
-        data.append(record)
+        results.append(record)
     
     #Map the letter grades to their corresponding numeric values:
     letter_grade = {
@@ -34,14 +38,26 @@ def getStudentCourses(session):
     }
 
     #Convert required data to readable format
-    completed_courses = []
-    for row in data[1:]:
-        completed_courses.append(row[1].strip())
+    for row in results[1:]:
         row[4] = int(row[4].strip())
         row[6] = letter_grade[row[6].strip()]
         row[7] = int(row[7].strip())
 
-    return data
+    return results
+
+
+def getCurrentCourses(soup):
+    current_courses_table = soup.find("table",{"id":"Prettydatagrid3"})
+    current_table_rows = current_courses_table.find_all("tr")
+    
+    records = []
+    for row in current_table_rows[1:]:
+        record = []
+        for cell in row.find_all("td"):
+            record.append(cell.text)
+        records.append(record)
+    
+    return records
 
 
 def getCompletedSemester(session):
@@ -68,6 +84,7 @@ def getCompletedSemester(session):
             return sem_index
         
     return sem_index+1
+
 
 def getCGPA(data, completed_semester):
     from pandas import DataFrame
@@ -121,4 +138,10 @@ def getCGPA(data, completed_semester):
             record = [semester , "-", "-"]
             result.append(record)
     
-    return result
+    response = {
+        "result": result,
+        "overall_product": overall_product,
+        "overall_credits": overall_credits
+    }
+    
+    return response

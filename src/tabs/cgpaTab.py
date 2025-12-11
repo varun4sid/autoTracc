@@ -13,13 +13,68 @@ def cgpaTab():
 
 
 def cgpaUI():
-    tab1,tab2 = st.tabs(["CGPA", "Course List"])
+    tab1,tab2,tab3 = st.tabs(["CGPA", "Course List", "Target"])
     
     df_columns = ["SEMESTER","GPA","CGPA"]
     with tab1:
-        df = pd.DataFrame(st.session_state.cgpa_data, columns=df_columns)
+        df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
         st.dataframe(df, hide_index = True)
         st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
     with tab2:
         st.write("Swipe left on table if you're on mobile to see credits and grade columns")
-        st.dataframe(st.session_state.courses_list, hide_index=True)
+        st.dataframe(st.session_state.completed_courses_list, hide_index=True)
+    with tab3:
+        if st.session_state.current_courses is not None:
+            targetGPA()
+        else:
+            st.warning("No current courses data available to compute target CGPA!")
+            
+            
+def targetGPA():
+    current_courses = st.session_state.current_courses
+    current_credits = sum([int(course[6]) for course in current_courses])
+    
+    contents = [
+        {
+            "COURSE" : course[2],
+            "CREDITS" : int(course[6]),
+            "GRADE" : 10
+        } for course in current_courses
+    ]
+    
+    contents.append({"COURSE": "Total", "CREDITS": current_credits, "GRADE": ""})
+    
+    df = pd.DataFrame(contents)
+    
+    edited_df = st.data_editor(
+        df,
+        column_config={
+            "GRADE": st.column_config.NumberColumn(
+                label="GRADE",
+                min_value=5,
+                max_value=10,
+                step=1,
+                disabled=False,
+                help="Enter expected grade for the course"
+            ),
+        },
+        disabled=["COURSE","CREDITS"],
+        hide_index=True,
+    )
+    
+    submit_button = st.button("Submit")
+    
+    if submit_button:
+        grade_credit_product = 0
+        for index in range(len(current_courses)):
+            grade = float(edited_df.at[index, "GRADE"])
+            credits = float(edited_df.at[index, "CREDITS"])
+            grade_credit_product += grade * credits
+        
+        st.write(f"### Target GPA for current semester: {grade_credit_product / current_credits :.4f}")
+        print(grade_credit_product, current_credits)
+        overall_product = st.session_state.cgpa_data["overall_product"] + grade_credit_product
+        overall_credits = st.session_state.cgpa_data["overall_credits"] + current_credits
+        print(overall_credits, overall_product)
+        st.write(f"### Target CGPA after current semester: {float(overall_product / overall_credits) :.4f}")
+        
