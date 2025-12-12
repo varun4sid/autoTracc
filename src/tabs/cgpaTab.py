@@ -1,8 +1,13 @@
 import pandas as pd
 import streamlit as st
-
+from pages.processingPage import processCGPA
 
 def cgpaTab():
+    if st.session_state.processing_cgpa:
+        st.info("CGPA data is being processed. Please wait...")
+    if not st.session_state.processing_cgpa:
+        #Get the cgpa data and handle exceptions 
+        processCGPA()
     if st.session_state.cgpa_available:
         cgpaUI()
     else:
@@ -19,7 +24,7 @@ def cgpaUI():
     with tab1:
         df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
         st.dataframe(df, hide_index = True)
-        st.warning("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+        st.info("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
     with tab2:
         st.write("Swipe left on table if you're on mobile to see credits and grade columns")
         st.dataframe(st.session_state.completed_courses_list, hide_index=True)
@@ -78,4 +83,4 @@ def targetGPA():
         st.write(f"#### Expected GPA for {current_semester}th semester: {grade_credit_product / current_credits :.4f}")
         overall_product = st.session_state.cgpa_data["overall_product"] + grade_credit_product
         overall_credits = st.session_state.cgpa_data["overall_credits"] + current_credits
-        st.write(f"#### Expected CGPA after {current_semester}th semester: {overall_product / overall_credits :.4f}")        
+        st.write(f"#### Expected CGPA after {current_semester}th semester: {overall_product / overall_credits :.4f}")

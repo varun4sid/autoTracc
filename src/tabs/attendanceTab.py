@@ -8,9 +8,9 @@ def attendanceTab():
         attendanceUI()
     else:
         st.warning("""
-            Attendance data unavailable at the moment. Try :
-            > Reloading the page and login again.\n
-            > Check whether attendance is "On Process..."
+            Attendance data unavailable at the moment. Try :\n
+            ● Reloading the page and login again.\n
+            ● Check whether attendance is "On Process..."
         """)
 
 
@@ -45,5 +45,5 @@ def attendanceUI():
     st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {st.session_state.updated_date}<br><br></h5>", unsafe_allow_html=True)
 
     #Display notes for the user
-    st.warning("""NOTE : '-' next to number of leaves denotes classes must be attended
+    st.info("""NOTE : '-' next to number of leaves denotes classes must be attended
                 to meet the corresponding percentage without skipping classes""")

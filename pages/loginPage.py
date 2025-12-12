@@ -86,14 +86,16 @@ def initializeSessionState():
         "attendance_data": "",
         "attendance_available": False,
         "cgpa_data":"",
-        "courses_list":"",
+        "current_courses": "",
+        "completed_courses_list":"",
         "cgpa_available": False,
         "custom_internals": 29,
         "custom_target": 50,
         "internals_data": "",
         "target_slider": "",
         "internals_table": "",
-        "course_map": ""
+        "course_map": "",
+        "processing_cgpa": False,
     }
 
     for key, value in defaults.items():

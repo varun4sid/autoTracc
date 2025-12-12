@@ -87,6 +87,6 @@ def internalsUI():
     
     renderInternals()
     
-    st.warning(""" '-' denotes you can't achieve target with your current internal marks                
+    st.info(""" '-' denotes you can't achieve target with your current internal marks                
                     * beside the internal marks denotes final mark entry is pending
                 """)
