@@ -9,6 +9,8 @@ def dashBoardPage():
         st.balloons()
         st.session_state.balloons = False
     
+    pstyle = "opacity:0.7; font-weight:bold; font-style:italic"
+    st.markdown(f"<p style = '{pstyle}'>Check out the new Target feature under CGPA tab!</p>", unsafe_allow_html=True)
     st.divider()
 
     #Separate the features with tabs

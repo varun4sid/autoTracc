@@ -32,6 +32,8 @@ def cgpaUI():
             
 def targetGPA():
     current_courses = st.session_state.current_courses
+    
+    current_semester = max([int(course[4]) for course in current_courses])
     current_credits = sum([int(course[6]) for course in current_courses])
     
     contents = [
@@ -42,9 +44,9 @@ def targetGPA():
         } for course in current_courses
     ]
     
-    contents.append({"COURSE": "Total", "CREDITS": current_credits, "GRADE": ""})
-    
     df = pd.DataFrame(contents)
+    
+    st.info("Edit the expected grades for your current courses and submit to compute expected CGPA.")
     
     edited_df = st.data_editor(
         df,
@@ -54,7 +56,7 @@ def targetGPA():
                 min_value=5,
                 max_value=10,
                 step=1,
-                disabled=False,
+                disabled=None,
                 help="Enter expected grade for the course"
             ),
         },
@@ -62,19 +64,18 @@ def targetGPA():
         hide_index=True,
     )
     
+    pstyle = "font-size:20px; font-weight:bold; margin-left:0px; position: relative; left:10px;"
+    st.write(f"<p style={pstyle}>Total credits for {current_semester}th semester: {current_credits}</p>", unsafe_allow_html=True)
     submit_button = st.button("Submit")
     
     if submit_button:
         grade_credit_product = 0
         for index in range(len(current_courses)):
-            grade = float(edited_df.at[index, "GRADE"])
-            credits = float(edited_df.at[index, "CREDITS"])
+            grade = int(edited_df.at[index, "GRADE"])
+            credits = int(edited_df.at[index, "CREDITS"])
             grade_credit_product += grade * credits
         
-        st.write(f"### Target GPA for current semester: {grade_credit_product / current_credits :.4f}")
-        print(grade_credit_product, current_credits)
+        st.write(f"#### Expected GPA for {current_semester}th semester: {grade_credit_product / current_credits :.4f}")
         overall_product = st.session_state.cgpa_data["overall_product"] + grade_credit_product
         overall_credits = st.session_state.cgpa_data["overall_credits"] + current_credits
-        print(overall_credits, overall_product)
-        st.write(f"### Target CGPA after current semester: {float(overall_product / overall_credits) :.4f}")
-        
+        st.write(f"#### Expected CGPA after {current_semester}th semester: {overall_product / overall_credits :.4f}")        
