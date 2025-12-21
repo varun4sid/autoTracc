@@ -3,8 +3,6 @@ import streamlit as st
 from pages.processingPage import processCGPA
 
 def cgpaTab():
-    if st.session_state.processing_cgpa:
-        st.info("CGPA data is being processed. Please wait...")
     if not st.session_state.processing_cgpa:
         #Get the cgpa data and handle exceptions 
         processCGPA()
