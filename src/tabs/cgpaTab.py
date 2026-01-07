@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 from pages.processingPage import processCGPA
+from decimal import Decimal, ROUND_HALF_UP
 
 def cgpaTab():
     if not st.session_state.processing_cgpa:
@@ -20,14 +21,19 @@ def cgpaUI():
     
     df_columns = ["SEMESTER","GPA","CGPA"]
     df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
+    
+    def roundHalfUp(x):
+        return Decimal(x).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    
     df_rounded = df.copy()
-    df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).round(2).astype(str)
+    df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).apply(roundHalfUp).astype(str)
+    df_rounded["GPA"] = df_rounded["GPA"].astype(float).apply(roundHalfUp).astype(str)
     
     def toggleCGPAValues():
         st.session_state.marksheet_value = not st.session_state.marksheet_value
     
     with tab1:
-        st.toggle(label="Marksheet CGPA",value=st.session_state.marksheet_value,on_change=toggleCGPAValues)
+        st.toggle(label="Marksheet Values",value=st.session_state.marksheet_value,on_change=toggleCGPAValues)
         if st.session_state.marksheet_value:
             st.dataframe(df_rounded, hide_index = True)
         else:
