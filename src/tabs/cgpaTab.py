@@ -18,7 +18,7 @@ def cgpaTab():
 def cgpaUI():
     tab1,tab2,tab3 = st.tabs(["CGPA", "Course List", "Target"])
     
-    df_columns = ["SEMESTER","GPA","CGPA"]
+    df_columns = ["SEMESTER","GPA","CGPA","MARKSHEET CGPA"]
     with tab1:
         df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
         st.dataframe(df, hide_index = True)
