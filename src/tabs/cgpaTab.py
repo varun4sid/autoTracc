@@ -25,9 +25,12 @@ def cgpaUI():
     def roundHalfUp(x):
         return Decimal(x).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     
-    df_rounded = df.copy()
-    df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).apply(roundHalfUp).astype(str)
-    df_rounded["GPA"] = df_rounded["GPA"].astype(float).apply(roundHalfUp).astype(str)
+    try:
+        df_rounded = df.copy()
+        df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).apply(roundHalfUp).astype(str)
+        df_rounded["GPA"] = df_rounded["GPA"].astype(float).apply(roundHalfUp).astype(str)
+    except ValueError:
+        df_rounded = df.copy()
     
     def toggleCGPAValues():
         st.session_state.marksheet_value = not st.session_state.marksheet_value
