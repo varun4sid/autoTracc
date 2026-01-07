@@ -129,13 +129,14 @@ def getCGPA(data, completed_semester):
                     semester_gpa  = semester_product / semester_credits
                     semester_cgpa = overall_product / overall_credits
                     
+                    marksheet_cgpa = '{:.2f}'.format(semester_cgpa)[:-1]
                     semester_gpa = '{:.5f}'.format(semester_gpa)[:-1]
                     semester_cgpa = '{:.5f}'.format(semester_cgpa)[:-1]
                 
-                record = [semester , semester_gpa , semester_cgpa]
+                record = [semester , semester_gpa , semester_cgpa, marksheet_cgpa]
                 result.append(record)    
         else:
-            record = [semester , "-", "-"]
+            record = [semester , "-", "-", "-"]
             result.append(record)
     
     response = {
