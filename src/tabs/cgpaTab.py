@@ -19,9 +19,19 @@ def cgpaUI():
     tab1,tab2,tab3 = st.tabs(["CGPA", "Course List", "Target"])
     
     df_columns = ["SEMESTER","GPA","CGPA"]
+    df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
+    df_rounded = df.copy()
+    df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).round(2).astype(str)
+    
+    def toggleCGPAValues():
+        st.session_state.marksheet_value = not st.session_state.marksheet_value
+    
     with tab1:
-        df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
-        st.dataframe(df, hide_index = True)
+        st.toggle(label="Marksheet CGPA",value=st.session_state.marksheet_value,on_change=toggleCGPAValues)
+        if st.session_state.marksheet_value:
+            st.dataframe(df_rounded, hide_index = True)
+        else:
+            st.dataframe(df, hide_index = True)
         st.info("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
     with tab2:
         st.write("Swipe left on table if you're on mobile to see credits and grade columns")

@@ -96,6 +96,7 @@ def initializeSessionState():
         "internals_table": "",
         "course_map": "",
         "processing_cgpa": False,
+        "marksheet_value": False,
     }
 
     for key, value in defaults.items():
