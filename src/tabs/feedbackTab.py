@@ -1,5 +1,6 @@
 import streamlit as st
 from src.feedback import *
+from src.logger import logEvent
 
 
 def feedbackTab():
@@ -13,12 +14,18 @@ def feedbackTab():
     
     if endsem_form:
         try:
+            logEvent("/feedback/endsem")
             autoFeedback(0,st.session_state.rollno,st.session_state.password)
+            logEvent("/feedback/endsem/success")
         except:
             st.warning("End semester feedback form not found! Try again if autofill interrupted!")
+            logEvent("/feedback/endsem/failure")
     
     if intermediate_form:
         try:
+            logEvent("/feedback/intermediate")
             autoFeedback(1,st.session_state.rollno,st.session_state.password)
+            logEvent("/feedback/intermediate/success")
         except:
             st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")
+            logEvent("/feedback/intermediate/failure")

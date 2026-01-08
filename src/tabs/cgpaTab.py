@@ -3,6 +3,8 @@ import streamlit as st
 from pages.processingPage import processCGPA
 from decimal import Decimal, ROUND_HALF_UP
 
+from src.logger import logEvent
+
 def cgpaTab():
     if not st.session_state.processing_cgpa:
         #Get the cgpa data and handle exceptions 
@@ -25,12 +27,12 @@ def cgpaUI():
     def roundHalfUp(x):
         return Decimal(x).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     
+    df_rounded = df.copy()
     try:
-        df_rounded = df.copy()
         df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).apply(roundHalfUp).astype(str)
         df_rounded["GPA"] = df_rounded["GPA"].astype(float).apply(roundHalfUp).astype(str)
     except ValueError:
-        df_rounded = df.copy()
+        pass
     
     def toggleCGPAValues():
         st.session_state.marksheet_value = not st.session_state.marksheet_value
@@ -91,6 +93,7 @@ def targetGPA():
     submit_button = st.button("Submit")
     
     if submit_button:
+        logEvent("/targetCGPA")
         grade_credit_product = 0
         for index in range(len(current_courses)):
             grade = int(edited_df.at[index, "GRADE"])

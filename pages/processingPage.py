@@ -1,15 +1,13 @@
 import streamlit as st
-import logging
-import datetime
-import pytz
 import pandas as pd
 
 from src.attendance import getStudentAttendance, getCourseNames
 from src.cgpa import *
+from src.logger import userLogger
 from src.pagerequests import *
 
 def processingPage():
-    logger()
+    userLogger()
     with st.spinner("Fetching user data..."):
         #Compute the necessary details and store in session state
         try:
@@ -21,12 +19,6 @@ def processingPage():
         
         st.session_state.page = "dashboard"
         st.rerun()
-
-
-def logger():
-    logging.basicConfig()
-    logtime = datetime.now(pytz.timezone('Asia/Calcutta')).replace(second=0,microsecond=0,tzinfo=None)
-    logging.warning(f'{logtime} USER : {str.upper(st.session_state.rollno)}')
     
 
 def processAttendance():
