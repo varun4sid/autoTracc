@@ -62,14 +62,18 @@ def displayLoginNote():
     
     
 def displayDemoButton():
-    demo_button = st.button("Demo")
+    query_params = st.query_params
+    show_demo  = query_params.get("demo") == "true"
+    
+    if show_demo:
+        demo_button = st.button("Demo")
         
-    if demo_button:
-        st.session_state.rollno = st.secrets["DEMO_ROLL"]
-        st.session_state.password = st.secrets["DEMO_PASSWORD"]
-        st.session_state.studzone1_session = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
-        st.session_state.page = "processing"
-        st.rerun()
+        if demo_button:
+            st.session_state.rollno = st.secrets["DEMO_ROLL"]
+            st.session_state.password = st.secrets["DEMO_PASSWORD"]
+            st.session_state.studzone1_session = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+            st.session_state.page = "processing"
+            st.rerun()
         
         
 def initializeSessionState():
