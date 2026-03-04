@@ -47,6 +47,7 @@ def dashBoardFooter():
     #On clicking logout button session state is reset to login page and script is rerun
     if logout_button:
         st.session_state.page = "login_page"
+        st.session_state.cgpa_available = False
         st.rerun()
         
     st.markdown("""<p>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
