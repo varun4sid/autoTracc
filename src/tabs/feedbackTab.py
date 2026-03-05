@@ -4,7 +4,7 @@ from src.logger import logEvent
 
 
 def feedbackTab():
-    st.write("##### Autofill your feedback forms with just one click!")
+    st.write("<h5 style='text-align:center;'>Autofill your feedback forms with just one click!</h5>", unsafe_allow_html=True)
     
     white_space_left, button1, button2, white_space_right = st.columns([2,2,2,2])
     with button1:

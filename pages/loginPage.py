@@ -3,9 +3,10 @@ from src.pagerequests import getHomePageAttendance
 
 
 def loginPage():
-    st.title("autoTracc")
-    st.markdown("<p style = 'opacity:0.7'>Enter your studzone details</p>", unsafe_allow_html=True)
-
+    st.markdown("""<div>
+            <h1 style = 'text-align:center;'>autoTracc</h1>
+            <p style = 'opacity:0.7; text-align:center;'>Enter your studzone details</p>
+            </div>""", unsafe_allow_html=True)
     form_widget = st.form(key="login_form", width=375)
     #Create a form
     with form_widget:

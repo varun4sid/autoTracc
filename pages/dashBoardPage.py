@@ -4,12 +4,12 @@ from src.tabs import attendanceTab, cgpaTab, feedbackTab, internalsTab, examsTab
 
 def dashBoardPage():
     #Greet the user
-    st.title(st.session_state.greeting)
+    st.title(st.session_state.greeting, text_alignment="center")
     if st.session_state.balloons:
         st.balloons()
         st.session_state.balloons = False
     
-    pstyle = "opacity:0.7; font-weight:bold; font-style:italic"
+    pstyle = "opacity:0.7; font-weight:bold; font-style:italic; text-align:center;"
     st.markdown(f"<p style = '{pstyle}'>Check out the new Target feature under CGPA tab!</p>", unsafe_allow_html=True)
     st.divider()
 
@@ -47,8 +47,8 @@ def dashBoardFooter():
     #On clicking logout button session state is reset to login page and script is rerun
     if logout_button:
         st.session_state.page = "login_page"
-        st.session_state.cgpa_available = False
+        st.session_state.processing_cgpa = False
         st.rerun()
         
-    st.markdown("""<p>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
+    st.markdown("""<p style = 'text-align:center;'>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
                 to share new feauture ideas and report bugs!</p>""",unsafe_allow_html=True)
