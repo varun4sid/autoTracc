@@ -3,6 +3,7 @@ from src.attendance import getAffordableLeaves
 import pandas as pd
 
 
+@st.fragment
 def attendanceTab():
     if st.session_state.attendance_available:
         attendanceUI()

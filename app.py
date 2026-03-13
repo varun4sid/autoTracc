@@ -27,4 +27,4 @@ if st.session_state.page == "processing":
 
 if st.session_state.page == "dashboard":
     dashBoardPage.dashBoardPage()
-    # dashBoardPage.dashBoardFooter()
+    dashBoardPage.dashBoardFooter()

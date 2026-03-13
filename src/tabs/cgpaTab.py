@@ -5,6 +5,8 @@ from decimal import Decimal, ROUND_HALF_UP
 
 from src.logger import logEvent
 
+
+@st.fragment
 def cgpaTab():
     if not st.session_state.processing_cgpa:
         #Get the cgpa data and handle exceptions 

@@ -1,7 +1,7 @@
 import streamlit as st
 from src.internals import *
 
-
+@st.fragment
 def internalsTab():
     table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
     with table_tab:

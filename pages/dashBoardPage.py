@@ -1,4 +1,5 @@
 import streamlit as st 
+from src.logger import logEvent
 from src.tabs import attendanceTab, cgpaTab, feedbackTab, internalsTab, examsTab
 
 
@@ -12,11 +13,7 @@ def dashBoardPage():
     # pstyle = "opacity:0.7; font-weight:bold; font-style:italic; text-align:center;"
     # st.markdown(f"<p style = '{pstyle}'>Check out the new Target feature under CGPA tab!</p>", unsafe_allow_html=True)
     
-    links = st.container(horizontal=True, horizontal_alignment="center")
-    st.image("assets/poster.png",width="stretch")
-    with links:
-        st.download_button("Add to Calendar", file_name="assets/event.ics", data=open("assets/event.ics","rb").read(), mime="text/calendar", key="calendar")
-        st.link_button("Follow on Instagram", url="https://www.instagram.com/psgtech_basketball")
+    displayAd()
         
     st.divider()
 
@@ -59,3 +56,13 @@ def dashBoardFooter():
         
     st.markdown("""<p style = 'text-align:center;'>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
                 to share new feauture ideas and report bugs!</p>""",unsafe_allow_html=True)
+    
+
+@st.fragment
+def displayAd():
+    links = st.container(horizontal=True, horizontal_alignment="center")
+    st.image("assets/poster.png",width="stretch")
+    with links:
+        st.download_button("Add to Calendar", file_name="assets/event.ics", data=open("assets/event.ics","rb").read(),
+                                mime="text/calendar", on_click=logEvent, args=("/ad/calendar",))
+        st.link_button("Follow on Instagram", url="https://www.instagram.com/psgtech_basketball")

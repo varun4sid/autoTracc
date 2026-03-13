@@ -3,6 +3,7 @@ from src.feedback import *
 from src.logger import logEvent
 
 
+@st.fragment
 def feedbackTab():
     st.write("<h5 style='text-align:center;'>Autofill your feedback forms with just one click!</h5>", unsafe_allow_html=True)
     
