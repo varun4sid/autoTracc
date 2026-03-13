@@ -22,6 +22,9 @@ def attendanceUI():
         max_value = 99,
         value = 75,
     )
+    
+    st.toggle(label="Toggle attendance/leaves", value=st.session_state.attendance_toggle, 
+            on_change=lambda: st.session_state.update({"attendance_toggle": not st.session_state.attendance_toggle}))
 
     #Update the tables after slider event
     st.session_state.attendance_table = getAffordableLeaves(st.session_state.attendance_data, st.session_state.attendance_slider, 0)
@@ -31,18 +34,31 @@ def attendanceUI():
     #Display the tables after latest update
     
     tabs = st.tabs(["Physical", "Exemption", "Medical"])
-    df_columns = ["COURSE_CODE",f"AFFORDABLE_LEAVES({st.session_state.attendance_slider}%)"]
-    with tabs[0]:
-        df = pd.DataFrame(st.session_state.attendance_table, columns=df_columns)
-        st.dataframe(df, hide_index = True)
-    with tabs[1]:
-        df = pd.DataFrame(st.session_state.exemption_table, columns=df_columns)
-        st.dataframe(df, hide_index = True)
-    with tabs[2]:
-        df = pd.DataFrame(st.session_state.medical_table, columns=df_columns)
-        st.dataframe(df, hide_index = True)
+    
+    if st.session_state.attendance_toggle:
+        df_columns = ["COURSE_CODE",f"AFFORDABLE_LEAVES({st.session_state.attendance_slider}%)"]
+        with tabs[0]:
+            df = pd.DataFrame(st.session_state.attendance_table, columns=df_columns)
+            st.dataframe(df, hide_index = True)
+        with tabs[1]:
+            df = pd.DataFrame(st.session_state.exemption_table, columns=df_columns)
+            st.dataframe(df, hide_index = True)
+        with tabs[2]:
+            df = pd.DataFrame(st.session_state.medical_table, columns=df_columns)
+            st.dataframe(df, hide_index = True)
+            
+    else:
+        with tabs[0]:
+            df = pd.DataFrame(st.session_state.attendance_percentage, columns=["COURSE_CODE", "TOTAL", "PRESENT", "% PHYSICAL"])
+            st.dataframe(df, hide_index = True)
+        with tabs[1]:
+            df = pd.DataFrame(st.session_state.attendance_percentage, columns=["COURSE_CODE", "EXEMPT_HOURS", "'%' EXEMPTION"])
+            st.dataframe(df, hide_index = True)
+        with tabs[2]:
+            df = pd.DataFrame(st.session_state.attendance_percentage, columns=["COURSE_CODE", "% MEDICAL"])
+            st.dataframe(df, hide_index = True)
 
-    st.markdown(f"<h5 style='color:rgb(255, 75, 75);'>LAST UPDATED : {st.session_state.updated_date}<br><br></h5>", unsafe_allow_html=True)
+    st.markdown(f"<h5 style='color:rgb(255, 75, 75); text-align:center;'>LAST UPDATED : {st.session_state.updated_date}<br><br></h5>", unsafe_allow_html=True)
 
     #Display notes for the user
     st.info("""NOTE : '-' next to number of leaves denotes classes must be attended

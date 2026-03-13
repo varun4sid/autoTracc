@@ -102,6 +102,8 @@ def initializeSessionState():
         "course_map": "",
         "processing_cgpa": False,
         "marksheet_value": False,
+        "attendance_toggle": False,
+        "attendance_percentage": "",
     }
 
     for key, value in defaults.items():
