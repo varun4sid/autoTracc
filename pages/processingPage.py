@@ -39,6 +39,7 @@ def processCGPA():
         studzone2_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
         completed_courses, st.session_state.current_courses = getStudentCourses(studzone2_home_page)
         completed_semester = getCompletedSemester(studzone2_home_page)
+        st.session_state.studzone2_session = studzone2_home_page
         st.session_state.cgpa_data = getCGPA(completed_courses, completed_semester)
         completed_courses_list = pd.DataFrame(completed_courses[1:],columns=completed_courses[0])
         columns_order = ["S.No","COURSE CODE","COURSE TITLE","CREDITS","GRADE"]
