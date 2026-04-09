@@ -7,6 +7,7 @@ def dashBoardPage():
     #Greet the user
     st.title(st.session_state.greeting, text_alignment="center")
     if st.session_state.balloons:
+        logEvent("/birthday")
         st.balloons()
         st.session_state.balloons = False
     
