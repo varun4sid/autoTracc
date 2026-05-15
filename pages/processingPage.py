@@ -36,7 +36,7 @@ def processAttendance():
 
 def processCGPA():
     try:
-        studzone2_home_page = getHomePageCGPA(st.session_state.rollno,st.session_state.password)
+        studzone2_home_page = getStudzoneLegacy(st.session_state.rollno,st.session_state.password)
         completed_courses, st.session_state.current_courses = getStudentCourses(studzone2_home_page)
         completed_semester = getCompletedSemester(studzone2_home_page)
         st.session_state.studzone2_session = studzone2_home_page

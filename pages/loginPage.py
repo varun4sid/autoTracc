@@ -1,5 +1,5 @@
 import streamlit as st
-from src.pagerequests import getHomePageAttendance
+from src.pagerequests import getStudzoneModern
 
 
 def loginPage():
@@ -27,7 +27,7 @@ def loginPage():
             else:
                 form_widget.empty()
                 #Check if credentials are correct by requesting user data from studzone website
-                attendance_home_page = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+                attendance_home_page = getStudzoneModern(st.session_state.rollno,st.session_state.password)
 
                 #If credentials are correct we get the homepage
                 if attendance_home_page:
@@ -72,7 +72,7 @@ def displayDemoButton():
         if demo_button:
             st.session_state.rollno = st.secrets["DEMO_ROLL"]
             st.session_state.password = st.secrets["DEMO_PASSWORD"]
-            st.session_state.studzone1_session = getHomePageAttendance(st.session_state.rollno,st.session_state.password)
+            st.session_state.studzone1_session = getStudzoneModern(st.session_state.rollno,st.session_state.password)
             st.session_state.page = "processing"
             st.rerun()
         

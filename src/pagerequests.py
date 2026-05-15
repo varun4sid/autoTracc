@@ -7,7 +7,7 @@ import pytz
 # from requests.adapters import HTTPAdapter
 # from urllib3.util.retry import Retry
 
-def getHomePageAttendance(rollno, password):
+def getStudzoneModern(rollno, password):
     #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone"
     session = Session()
@@ -41,14 +41,14 @@ def getHomePageAttendance(rollno, password):
     #Check if we have landed on student home page
     #and the pass the current session for the next function
     response_soup = BeautifulSoup(response.text , "lxml")
-    check = response_soup.find("nav",{"class":"navbar navbar-expand-lg navbar-light"})
+    check = response_soup.find("nav",{"class":"navbar"})
     if check:
         return session
     else:
         return False
 
 
-def getHomePageCGPA(rollno, password):
+def getStudzoneLegacy(rollno, password):
     #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone2/"
     session = Session()
