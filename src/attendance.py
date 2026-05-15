@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
+import requests
 import streamlit as st
 import math
 
-def getStudentAttendance(session):
+def getStudentAttendance(session: requests.Session):
     #Get the student attendance page using the current session
     student_percentage_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/StudentPercentage"
     student_percentage_page = session.get(student_percentage_url)
@@ -35,7 +36,7 @@ def getStudentAttendance(session):
     return data
 
 
-def getCourseNames(session):
+def getCourseNames(session: requests.Session):
     #Find the course details page url
     courses_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/courseplan"
 

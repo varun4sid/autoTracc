@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
+import requests
 
-def getStudentCourses(session):
+def getStudentCourses(session: requests.Session):
     #Get the courses page using the current session
     courses_page_url = "https://ecampus.psgtech.ac.in/studzone2/AttWfStudCourseSelection.aspx"
     courses_page = session.get(courses_page_url)
@@ -60,7 +61,7 @@ def getCurrentCourses(soup):
     return records
 
 
-def getCompletedSemester(session):
+def getCompletedSemester(session: requests.Session):
     results_page_url = "https://ecampus.psgtech.ac.in/studzone2/FrmEpsStudResult.aspx"
     results_page     = session.get(results_page_url)
     

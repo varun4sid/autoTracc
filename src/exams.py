@@ -1,7 +1,8 @@
 from bs4 import BeautifulSoup
+import requests
 import streamlit as st
 
-def getCATExamSchedule(session):
+def getCATExamSchedule(session: requests.Session):
     #Get the exam schedule page
     schedule_page_url = "https://ecampus.psgtech.ac.in/studzone/ContinuousAssessment/CATestTimeTable"
     schedule_page = session.get(schedule_page_url)
@@ -45,7 +46,7 @@ def getCATExamSchedule(session):
     return schedule_data
 
 
-def getSemExamSchedule(session):
+def getSemExamSchedule(session: requests.Session):
     sem_schedule_page_url = "https://ecampus.psgtech.ac.in/studzone2/FrmEpsTimetable.aspx"
     sem_schedule_page = session.get(sem_schedule_page_url)
     

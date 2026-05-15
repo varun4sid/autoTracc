@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
+import requests
 import streamlit as st
 import math
 
-def getInternals(session):
+def getInternals(session: requests.Session):
     internals_url = "https://ecampus.psgtech.ac.in/studzone/ContinuousAssessment/CAMarksView"
     
     internals_page = session.get(internals_url)

@@ -1,22 +1,34 @@
 from requests import Session
 from bs4 import BeautifulSoup
 from datetime import datetime
+import requests
 import streamlit as st
 import pytz
 
-# from requests.adapters import HTTPAdapter
-# from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+def make_session():
+    s = Session()
+    retry = Retry(
+        total=5,
+        connect=5,
+        read=3,
+        backoff_factor=0.5,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=("GET", "POST"),
+        raise_on_status=False,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    s.mount("https://", adapter)
+    s.mount("http://", adapter)
+    return s
+
 
 def getStudzoneModern(rollno, password):
     #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone"
-    session = Session()
-
-    #To counter MaxRetriesExceeded exception
-    # retry = Retry(connect=3, backoff_factor=0.5)
-    # adapter = HTTPAdapter(max_retries=retry)
-    # session.mount('http://', adapter)
-    # session.mount('https://', adapter)
+    session = make_session()
 
     #Get the login page
     login_page = session.get(login_url)
@@ -51,7 +63,7 @@ def getStudzoneModern(rollno, password):
 def getStudzoneLegacy(rollno, password):
     #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone2/"
-    session = Session()
+    session = make_session()
 
     #Get the login page
     login_page = session.get(login_url)
@@ -85,7 +97,7 @@ def getStudzoneLegacy(rollno, password):
     return session
     
 
-def greetUser(session):
+def greetUser(session: requests.Session):
     scholarship_url = "https://ecampus.psgtech.ac.in/studzone/Scholar/VallalarScholarship"
     scholarship_page = session.get(scholarship_url)
     
@@ -116,7 +128,7 @@ def greetUser(session):
     return greeting
 
 
-def fallbackGreeting(session):
+def fallbackGreeting(session: requests.Session):
     profile_url = "https://ecampus.psgtech.ac.in/studzone/Home/Profile"
     profile_page = session.get(profile_url)
     profile_soup = BeautifulSoup(profile_page.text, "lxml")
