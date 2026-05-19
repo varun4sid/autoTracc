@@ -8,6 +8,8 @@ import pytz
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
+from src.logger import logError
+
 def make_session():
     s = Session()
     retry = Retry(
@@ -26,18 +28,21 @@ def make_session():
 
 
 def getStudzoneModern(rollno, password):
-    #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone"
     session = make_session()
 
-    #Get the login page
-    login_page = session.get(login_url)
-
+    response = session.get(login_url)
+    if response.status_code != 200:
+        raise Exception("Failed to connect to studzone")
+    
     #Extract the html from the page using lxml parser
-    login_soup = BeautifulSoup(login_page.text , "lxml")
+    login_soup = BeautifulSoup(response.text , "lxml")
 
     #Get the dynamic token used for login
-    token = login_soup.find("input",{"name":"__RequestVerificationToken"})["value"]
+    try:
+        token = login_soup.find("input",{"name":"__RequestVerificationToken"})["value"]
+    except:
+        raise Exception("Failed to retrieve /studzone1 __RequestVerificationToken")
 
     #Create a payload to POST to the login form
     payload = {
@@ -49,15 +54,15 @@ def getStudzoneModern(rollno, password):
 
     #Get the response from POST
     response = session.post(login_url, data=payload)
+    
+    if response.status_code != 200:
+        print("Status code:", response.status_code)
+        raise Exception("Failed to connect to studzone")
+    if response.url == login_url:
+        print("Invalid credentials!")
+        raise Exception("Invalid credentials! Try again!")
 
-    #Check if we have landed on student home page
-    #and the pass the current session for the next function
-    response_soup = BeautifulSoup(response.text , "lxml")
-    check = response_soup.find("nav",{"class":"navbar"})
-    if check:
-        return session
-    else:
-        return False
+    return session
 
 
 def getStudzoneLegacy(rollno, password):
@@ -72,10 +77,16 @@ def getStudzoneLegacy(rollno, password):
     login_soup = BeautifulSoup(login_page.text , "lxml")
 
     #Get the dynamic tokens used for login
-    viewstate           = login_soup.find("input",{"name":"__VIEWSTATE"})["value"]
-    viewstate_generator = login_soup.find("input",{"name":"__VIEWSTATEGENERATOR"})["value"]
-    event_validation    = login_soup.find("input",{"name" : "__EVENTVALIDATION"})["value"]
-    abcd3               = login_soup.find("input",{"name" : "abcd3"})["value"]
+    try:
+        viewstate           = login_soup.find("input",{"name":"__VIEWSTATE"})["value"]
+        viewstate_generator = login_soup.find("input",{"name":"__VIEWSTATEGENERATOR"})["value"]
+        event_validation    = login_soup.find("input",{"name" : "__EVENTVALIDATION"})["value"]
+        abcd3               = login_soup.find("input",{"name" : "abcd3"})["value"]
+    except:
+        err_message = "Failed to retrieve /studzone2 ASP.NET tokens"
+        raise Exception(err_message)
+    finally:
+        logError(err_message)
 
     #Create a payload to POST to the login form
     payload = {

@@ -12,3 +12,8 @@ def userLogger():
 def logEvent(event_message):
     logging.basicConfig(level=logging.INFO)
     logging.info(f'{str.upper(st.session_state.rollno)}{event_message}')
+    
+
+def logError(error_message):
+    logging.basicConfig(level=logging.ERROR)
+    logging.error(f'{str.upper(st.session_state.rollno)} [{error_message}]')
