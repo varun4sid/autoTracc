@@ -50,12 +50,15 @@ def getSemExamSchedule(session: requests.Session):
     sem_schedule_page_url = "https://ecampus.psgtech.ac.in/studzone2/FrmEpsTimetable.aspx"
     sem_schedule_page = session.get(sem_schedule_page_url)
     
+    if sem_schedule_page.status_code not in [200,302]:
+        raise Exception("Semester schedule not found! /studzone2/FrmEpsTimetable.aspx is unavailable!")
+    
     sem_schedule_page_soup = BeautifulSoup(sem_schedule_page.text , "lxml")
     
     schedule_table = sem_schedule_page_soup.find("table",{"id":"DgResult"})
     
     if not schedule_table:
-        return False
+        raise Exception("Semester schedule not found!")
     
     schedule_table_rows = schedule_table.find_all("tr")
     

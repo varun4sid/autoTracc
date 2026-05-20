@@ -11,8 +11,8 @@ def dashBoardPage():
         st.balloons()
         st.session_state.greeting["balloons"] = False
     
-    # pstyle = "opacity:0.7; font-weight:bold; font-style:italic; text-align:center;"
-    # st.markdown(f"<p style = '{pstyle}'>Check out the new Target feature under CGPA tab!</p>", unsafe_allow_html=True)
+    pstyle = "opacity:0.7; font-weight:bold; font-style:italic; text-align:center; color:#FF6347;"
+    st.markdown(f"<p style = '{pstyle}'>CGPA details are unavailable as previous semester results are taken down from studzone :(</p>", unsafe_allow_html=True)
         
     st.divider()
 
