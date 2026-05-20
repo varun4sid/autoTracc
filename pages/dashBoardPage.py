@@ -1,4 +1,5 @@
 import streamlit as st 
+from streamlit_js_eval import streamlit_js_eval
 from src.logger import logEvent
 from src.tabs import attendanceTab, cgpaTab, feedbackTab, internalsTab, examsTab
 
@@ -41,17 +42,11 @@ def dashBoardFooter():
     #Add a logout button
     white_space_left, logout, star, white_space_right = st.columns([5,2,2,5])
     with logout:
-        logout_button = st.button("Logout")
+        st.link_button("Logout", url="/", type="secondary")
 
     #Link to github page
     with star:
         st.link_button("Star :star:","https://github.com/varun4sid/autoTracc")
-    
-    #On clicking logout button session state is reset to login page and script is rerun
-    if logout_button:
-        st.session_state.page = "login_page"
-        st.session_state.is_cgpa_processed = False
-        st.rerun()
         
     st.markdown("""<p style = 'text-align:center;'>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
                 to share new feauture ideas and report bugs!</p>""",unsafe_allow_html=True)

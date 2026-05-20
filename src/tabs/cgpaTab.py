@@ -49,11 +49,11 @@ def cgpaUI():
     with tab3:
         if st.session_state.cgpa_error:
             st.error(st.session_state.cgpa_error)
-        
-        if st.session_state.current_courses is not None:
-            targetGPA()
         else:
-            st.warning("No current courses data available to compute target CGPA!")
+            if st.session_state.current_courses is not None:
+                targetGPA()
+            else:
+                st.warning("No current courses data available to compute target CGPA!")
             
             
 def targetGPA():

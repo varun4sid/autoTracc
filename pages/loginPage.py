@@ -24,8 +24,7 @@ def loginPage():
             else:
                 form_widget.empty()
                 st.session_state.rollno = st.session_state.rollno.strip().upper()
-                
-                #Check if credentials are correct by requesting user data from studzone website
+
                 try:
                     st.session_state.studzone1_session = getStudzoneModern(st.session_state.rollno,st.session_state.password)
                     st.session_state.page = "processing"
@@ -74,7 +73,6 @@ def initializeSessionState():
         "rollno": "",
         "password": "",
         "greeting": "",
-        "balloons":False,
         "attendance_slider": 75,
         "attendance_table": "",
         "exemption_table": "",
