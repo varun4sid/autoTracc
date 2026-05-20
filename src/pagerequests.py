@@ -27,10 +27,10 @@ def make_session():
 
 def getStudzoneModern(rollno, password):
     login_url = "https://ecampus.psgtech.ac.in/studzone"
-    session = make_session()
+    session = Session()
 
     response = session.get(login_url)
-    if response.status_code != 200:
+    if response.status_code not in [200,302]:
         raise Exception("Failed to connect to /studzone")
     
     #Extract the html from the page using lxml parser
@@ -53,7 +53,7 @@ def getStudzoneModern(rollno, password):
     #Get the response from POST
     response = session.post(login_url, data=payload)
     
-    if response.status_code != 200:
+    if response.status_code not in [200,302]:
         raise Exception("Failed to connect to /studzone")
     if response.url == login_url:
         raise Exception("Invalid credentials! Try again!")
@@ -64,10 +64,12 @@ def getStudzoneModern(rollno, password):
 def getStudzoneLegacy(rollno, password):
     #Start a session
     login_url = "https://ecampus.psgtech.ac.in/studzone2/"
-    session = make_session()
+    session = Session()
 
     #Get the login page
     login_page = session.get(login_url)
+    if login_page.status_code not in [200,302]:
+        raise Exception("Failed to connect to /studzone2")
 
     #Extract the html from the page using lxml parser
     login_soup = BeautifulSoup(login_page.text , "lxml")
@@ -98,7 +100,9 @@ def getStudzoneLegacy(rollno, password):
     }
 
     #Send a POST request from current session
-    session.post(login_url, data=payload)
+    response = session.post(login_url, data=payload)
+    if response.status_code not in [200,302]:
+        raise Exception("Failed to login to /studzone2")
 
     return session
     
@@ -107,7 +111,7 @@ def greetUser(session):
     scholarship_url = "https://ecampus.psgtech.ac.in/studzone/Scholar/VallalarScholarship"
     response = session.get(scholarship_url)
     
-    if response.status_code != 200:
+    if response.status_code not in [200,302]:
         raise Exception("Failed to connect to /studzone/Scholar/VallalarScholarship")
     
     page_soup = BeautifulSoup(response.text, "lxml")
@@ -141,7 +145,7 @@ def fallbackGreeting(session):
     profile_url = "https://ecampus.psgtech.ac.in/studzone/Home/Profile"
     profile_page = session.get(profile_url)
     
-    if profile_page.status_code != 200:
+    if profile_page.status_code not in [200,302]:
         raise Exception("Failed to connect to /studzone/Home/Profile")
     
     profile_soup = BeautifulSoup(profile_page.text, "lxml")

@@ -8,48 +8,48 @@ from src.logger import logEvent
 
 @st.fragment
 def cgpaTab():
-    if not st.session_state.processing_cgpa:
-        #Get the cgpa data and handle exceptions 
-        processCGPA()
-    if st.session_state.cgpa_available:
-        cgpaUI()
-    else:
-        st.warning("""
-            Courses data unavailable at the moment. This is likely to be a server issue.
-            Try again after some time.
-        """)
+    if not st.session_state.is_cgpa_processed:
+        try: 
+            processCGPA()
+        except Exception as e:
+            st.session_state.cgpa_error = str(e)
+    
+    cgpaUI()
 
 
 def cgpaUI():
     tab1,tab2,tab3 = st.tabs(["CGPA", "Course List", "Target"])
     
-    df_columns = ["SEMESTER","GPA","CGPA"]
-    df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
-    
-    def roundHalfUp(x):
-        return Decimal(x).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-    
-    df_rounded = df.copy()
-    try:
-        df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).apply(roundHalfUp).astype(str)
-        df_rounded["GPA"] = df_rounded["GPA"].astype(float).apply(roundHalfUp).astype(str)
-    except ValueError:
-        pass
-    
-    def toggleCGPAValues():
-        st.session_state.marksheet_value = not st.session_state.marksheet_value
+    if not st.session_state.cgpa_error:
+        df_columns = ["SEMESTER","GPA","CGPA"]
+        df = pd.DataFrame(st.session_state.cgpa_data["result"], columns=df_columns)
+        df_rounded = df.copy()
+        try:
+            df_rounded["CGPA"] = df_rounded["CGPA"].astype(float).apply(roundHalfUp).astype(str)
+            df_rounded["GPA"] = df_rounded["GPA"].astype(float).apply(roundHalfUp).astype(str)
+        except ValueError:
+            pass
     
     with tab1:
-        st.toggle(label="Marksheet Values",value=st.session_state.marksheet_value,on_change=toggleCGPAValues)
-        if st.session_state.marksheet_value:
-            st.dataframe(df_rounded, hide_index = True)
-        else:
-            st.dataframe(df, hide_index = True)
-        st.info("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
+        if st.session_state.cgpa_error:
+            st.error(st.session_state.cgpa_error)
+        else: 
+            st.toggle(label="Marksheet Values",value=st.session_state.marksheet_value,on_change=toggleCGPAValues)
+            if st.session_state.marksheet_value:
+                st.dataframe(df_rounded, hide_index = True)
+            else:
+                st.dataframe(df, hide_index = True)
+            st.info("NOTE : '-' denotes existing backlogs in the corresponding semester!\n")
     with tab2:
-        st.write("Swipe left on table if you're on mobile to see credits and grade columns")
-        st.dataframe(st.session_state.completed_courses_list, hide_index=True)
+        if st.session_state.cgpa_error:
+            st.error(st.session_state.cgpa_error)
+        else:
+            st.write("Swipe left on table if you're on mobile to see credits and grade columns")
+            st.dataframe(st.session_state.completed_courses_list, hide_index=True)
     with tab3:
+        if st.session_state.cgpa_error:
+            st.error(st.session_state.cgpa_error)
+        
         if st.session_state.current_courses is not None:
             targetGPA()
         else:
@@ -103,6 +103,15 @@ def targetGPA():
             grade_credit_product += grade * credits
         
         st.write(f"#### Expected GPA for {current_semester}th semester: {grade_credit_product / current_credits :.4f}")
-        overall_product = st.session_state.cgpa_data["overall_product"] + grade_credit_product
-        overall_credits = st.session_state.cgpa_data["overall_credits"] + current_credits
-        st.write(f"#### Expected CGPA after {current_semester}th semester: {overall_product / overall_credits :.4f}")
+        
+        if not st.session_state.cgpa_error:
+            overall_product = st.session_state.cgpa_data["overall_product"] + grade_credit_product
+            overall_credits = st.session_state.cgpa_data["overall_credits"] + current_credits
+            st.write(f"#### Expected CGPA after {current_semester}th semester: {overall_product / overall_credits :.4f}")
+        
+        
+def roundHalfUp(x):
+    return Decimal(x).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+def toggleCGPAValues():
+        st.session_state.marksheet_value = not st.session_state.marksheet_value

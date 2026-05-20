@@ -4,7 +4,10 @@ import requests
 def getStudentCourses(session: requests.Session):
     #Get the courses page using the current session
     courses_page_url = "https://ecampus.psgtech.ac.in/studzone2/AttWfStudCourseSelection.aspx"
+    
     courses_page = session.get(courses_page_url)
+    if courses_page.status_code not in [200,302]:
+        raise Exception("Previous semester results not found! /studzone2/AttWfStudCourseSelection.aspx is unavailable!")
 
     #Get the html from the courses page
     courses_soup = BeautifulSoup(courses_page.text, "lxml")
@@ -65,6 +68,9 @@ def getCompletedSemester(session: requests.Session):
     results_page_url = "https://ecampus.psgtech.ac.in/studzone2/FrmEpsStudResult.aspx"
     results_page     = session.get(results_page_url)
     
+    if results_page.status_code not in [200,302]:
+        raise Exception("Semester results not found! /studzone2/FrmEpsStudResult.aspx is unavailable!")
+
     results_page_soup = BeautifulSoup(results_page.text, "lxml")
     results_table = results_page_soup.find("table",{"id":"DgResult"})
     
