@@ -5,11 +5,11 @@ from src.tabs import attendanceTab, cgpaTab, feedbackTab, internalsTab, examsTab
 
 def dashBoardPage():
     #Greet the user
-    st.title(st.session_state.greeting, text_alignment="center")
-    if st.session_state.balloons:
+    st.title(st.session_state.greeting["message"], text_alignment="center")
+    if st.session_state.greeting["balloons"]:
         logEvent("/birthday")
         st.balloons()
-        st.session_state.balloons = False
+        st.session_state.greeting["balloons"] = False
     
     # pstyle = "opacity:0.7; font-weight:bold; font-style:italic; text-align:center;"
     # st.markdown(f"<p style = '{pstyle}'>Check out the new Target feature under CGPA tab!</p>", unsafe_allow_html=True)

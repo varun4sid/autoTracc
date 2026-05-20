@@ -11,9 +11,14 @@ def processingPage():
     with st.spinner("Fetching user data..."):
         #Compute the necessary details and store in session state
         try:
-            st.session_state.greeting = greetUser(st.session_state.studzone1_session)      
-        except:
-            st.session_state.greeting = fallbackGreeting(st.session_state.studzone1_session)
+            st.session_state.greeting = greetUser(st.session_state.studzone1_session)
+        except Exception as e:
+            try:
+                logError(str(e))
+                st.session_state.greeting = fallbackGreeting(st.session_state.studzone1_session)
+            except Exception as fallback_error:
+                logError(str(fallback_error))
+                st.session_state.greeting = {"message": "Welcome!", "balloons": False}
             
         processAttendance()
         

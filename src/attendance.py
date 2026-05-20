@@ -4,12 +4,13 @@ import streamlit as st
 import math
 
 def getStudentAttendance(session: requests.Session):
-    #Get the student attendance page using the current session
     student_percentage_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/StudentPercentage"
-    student_percentage_page = session.get(student_percentage_url)
+    response = session.get(student_percentage_url)
 
-    #Get the html from the student attendance page
-    attendance_soup = BeautifulSoup(student_percentage_page.text,"lxml")
+    if response.status_code != 200:
+        raise Exception("Failed to connect to /studzone/Attendance/StudentPercentage")
+
+    attendance_soup = BeautifulSoup(response.text,"lxml")
 
     #Get the table element from the html
     attendance_table = attendance_soup.find("table",{"id":"example"}).find("tbody")
@@ -37,40 +38,37 @@ def getStudentAttendance(session: requests.Session):
 
 
 def getCourseNames(session: requests.Session):
-    #Find the course details page url
     courses_url = "https://ecampus.psgtech.ac.in/studzone/Attendance/courseplan"
 
-    #Get the course details page
-    courses_page = session.get(courses_url)
+    response = session.get(courses_url)
 
-    #Get the html of the course details page
-    courses_soup = BeautifulSoup(courses_page.text, "lxml")
+    if response.status_code != 200:
+        raise Exception("Failed to connect to /studzone/Attendance/courseplan")
+
+    courses_soup = BeautifulSoup(response.text, "lxml")
 
     #Get the list of div elements containing course details of each course
     courses = courses_soup.find_all("div",{"class":"col-md-8"})
-
-    #Create an empty dictionary
     course_map = {}
 
     #Iterate through the list of divs to get the contents
     for course in courses:
-        course_code = course.find("h5")
-        course_name = course.find("h6")
+        course_code = course.find("h5").text.strip()
+        course_name = course.find("h6").text.strip()
 
         #Check and append uppercase letters
         course_initials = [
-            word[0] for word in course_name.text.split() 
+            word[0] for word in course_name.split() 
             if word and ord('A') <= ord(word[0]) <= ord('Z')
         ]
                 
         #Convert the list of initials to string and map it to the course code
-        course_map[course_code.text] = ''.join(course_initials)
+        course_map[course_code] = ''.join(course_initials)
 
     return course_map
 
 
 def getAffordableLeaves(data,custom_percentage, mode):
-    #Declare an empty result table
     result = []
 
     #Calculate affordable leaves for each course and update result

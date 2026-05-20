@@ -1,8 +1,6 @@
 from requests import Session
 from bs4 import BeautifulSoup
 from datetime import datetime
-import requests
-import streamlit as st
 import pytz
 
 from requests.adapters import HTTPAdapter
@@ -33,7 +31,7 @@ def getStudzoneModern(rollno, password):
 
     response = session.get(login_url)
     if response.status_code != 200:
-        raise Exception("Failed to connect to studzone")
+        raise Exception("Failed to connect to /studzone")
     
     #Extract the html from the page using lxml parser
     login_soup = BeautifulSoup(response.text , "lxml")
@@ -56,10 +54,8 @@ def getStudzoneModern(rollno, password):
     response = session.post(login_url, data=payload)
     
     if response.status_code != 200:
-        print("Status code:", response.status_code)
-        raise Exception("Failed to connect to studzone")
+        raise Exception("Failed to connect to /studzone")
     if response.url == login_url:
-        print("Invalid credentials!")
         raise Exception("Invalid credentials! Try again!")
 
     return session
@@ -84,9 +80,8 @@ def getStudzoneLegacy(rollno, password):
         abcd3               = login_soup.find("input",{"name" : "abcd3"})["value"]
     except:
         err_message = "Failed to retrieve /studzone2 ASP.NET tokens"
-        raise Exception(err_message)
-    finally:
         logError(err_message)
+        raise Exception(err_message)
 
     #Create a payload to POST to the login form
     payload = {
@@ -108,11 +103,14 @@ def getStudzoneLegacy(rollno, password):
     return session
     
 
-def greetUser(session: requests.Session):
+def greetUser(session):
     scholarship_url = "https://ecampus.psgtech.ac.in/studzone/Scholar/VallalarScholarship"
-    scholarship_page = session.get(scholarship_url)
+    response = session.get(scholarship_url)
     
-    page_soup = BeautifulSoup(scholarship_page.text, "lxml")
+    if response.status_code != 200:
+        raise Exception("Failed to connect to /studzone/Scholar/VallalarScholarship")
+    
+    page_soup = BeautifulSoup(response.text, "lxml")
     
     #Get the personal info table
     personal_info_table = page_soup.find("td",{"class":"personal-info"})
@@ -131,17 +129,21 @@ def greetUser(session: requests.Session):
     
     if birthdate.month == today.month and birthdate.day == today.day:
         greeting = "Happy Birthday " + username + "!"
-        st.session_state.balloons = True
+        balloons = True
     else:
         greeting = "Welcome " + username + "!"
-        st.session_state.balloons = False
+        balloons = False
 
-    return greeting
+    return { "message" : greeting, "balloons": balloons }
 
 
-def fallbackGreeting(session: requests.Session):
+def fallbackGreeting(session):
     profile_url = "https://ecampus.psgtech.ac.in/studzone/Home/Profile"
     profile_page = session.get(profile_url)
+    
+    if profile_page.status_code != 200:
+        raise Exception("Failed to connect to /studzone/Home/Profile")
+    
     profile_soup = BeautifulSoup(profile_page.text, "lxml")
     profile_name = profile_soup.find("h2", {"class":"profile-name"}).text
     greeting = "Welcome " + profile_name + "!"
