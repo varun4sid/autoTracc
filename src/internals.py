@@ -1,51 +1,43 @@
 from bs4 import BeautifulSoup
 import requests
-import streamlit as st
 import math
 
 def getInternals(session: requests.Session):
     internals_url = "https://ecampus.psgtech.ac.in/studzone/ContinuousAssessment/CAMarksView"
-    
     internals_page = session.get(internals_url)
+    
+    if internals_page.status_code not in [200,302]:
+        raise Exception("Failed to connect to /studzone/ContinuousAssessment/CAMarksView")
+    
     internals_soup = BeautifulSoup(internals_page.text, "lxml")
+    content_tables = internals_soup.find_all("div", {"class":"table-responsive"})
     
-    content_tables = internals_soup.find_all("table")
+    if content_tables is None:
+        raise Exception("/studzone/ContinuousAssessment/CAMarksView has no content!")
 
-    #Check for the presence of both the tables
     if len(content_tables) != 2:
-        return False
+        """
+        Internal marks schema varies drastically for different courses. It is hard to process them without knowing the exact schema.
+        So currently this script will support only the internals schema with which this feature was built
+        """
+        raise Exception("This feature is currently only supported for non-project semesters of MSc Integrated courses!")
     
-    # lab_table = content_tables[0]
     theory_table_body = content_tables[1].find("tbody")
     
     theory_table_rows = theory_table_body.find_all("tr")
     
-    course_map = st.session_state.course_map
-    
-    #Get the theory internal marks in the form of list
     theory_table = []
     for row in theory_table_rows:
         record = []
         cells = row.find_all("td")
         for cell in cells:
             record.append(cell.text)
-        try:
-            record[0] = ''.join( [ record[0], '   -   ', course_map[record[0]] ] )
-        except KeyError:
-            continue
         theory_table.append(record)
 
     return theory_table
     
     
 def getTargetScore(theory_table, target):
-    #Check for temporary/final mark entry
-    final = True
-    for record in theory_table:
-        if record[-1] == '*':
-            final = False
-            break
-    
     result = []
     for record in theory_table:
         row = []
@@ -58,8 +50,6 @@ def getTargetScore(theory_table, target):
             row.extend([record[-2],pass_score,sem_score])
             row[1] = float(row[1])
             row[1] = f'{row[1]:.2f}'
-            if not final:
-                row[1] = f'{row[1]}*'
         result.append(row)
         
     return result

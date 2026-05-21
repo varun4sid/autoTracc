@@ -1,15 +1,20 @@
 import streamlit as st
+from src.attendance import mapCodeWithName
+from src.logger import logError
 from src.internals import *
 
 @st.fragment
 def internalsTab():
     table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
     with table_tab:
-        try:
-            st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
-            internalsUI()
-        except:
-            st.warning("Your internal marks are unavailable at the moment")
+        fetch_internals = st.button("Fetch internal marks", key="fetch_internals_button")
+        if fetch_internals:
+            try:
+                st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
+                internalsUI()
+            except Exception as e:
+                logError(str(e))
+                st.error(str(e))
             
     with custom_tab:
         customScore()
@@ -83,10 +88,8 @@ def internalsUI():
     
     st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
     
-    st.session_state.internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+    internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+    st.session_state.internals_table = mapCodeWithName(internals_table, st.session_state.course_map)
     
     renderInternals()
-    
-    st.info(""" '-' denotes you can't achieve target with your current internal marks                
-                    * beside the internal marks denotes final mark entry is pending
-                """)
+    st.info("'-' denotes you can't achieve target with your current internal marks!")

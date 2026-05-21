@@ -1,5 +1,4 @@
-import streamlit as st 
-from streamlit_js_eval import streamlit_js_eval
+import streamlit as st
 from src.logger import logEvent
 from src.tabs import attendanceTab, cgpaTab, feedbackTab, internalsTab, examsTab
 

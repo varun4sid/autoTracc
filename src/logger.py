@@ -6,14 +6,14 @@ import streamlit as st
 def userLogger():
     logging.basicConfig(level=logging.INFO)
     logtime = datetime.now(pytz.timezone('Asia/Calcutta')).replace(second=0,microsecond=0,tzinfo=None)
-    logging.info(f'{logtime} USER : {str.upper(st.session_state.rollno)}')
+    logging.info(f'{logtime} USER : {st.session_state.rollno}')
 
  
 def logEvent(event_message):
     logging.basicConfig(level=logging.INFO)
-    logging.info(f'{str.upper(st.session_state.rollno)}{event_message}')
+    logging.info(f'{st.session_state.rollno}{event_message}')
     
 
 def logError(error_message):
     logging.basicConfig(level=logging.ERROR)
-    logging.error(f'{str.upper(st.session_state.rollno)} [{error_message}]')
+    logging.error(f'{st.session_state.rollno} [{error_message}]')
