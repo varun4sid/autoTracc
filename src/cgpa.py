@@ -90,7 +90,7 @@ def getCompletedSemester(session: requests.Session):
         if record[5] == "RA":
             return sem_index
         
-    return sem_index+1
+    return sem_index + 1
 
 
 def getCGPA(data, completed_semester):

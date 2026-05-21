@@ -30,10 +30,6 @@ def getStudentAttendance(session: requests.Session):
         record = []
         for cell in row.find_all("td"):
             record.append(cell.text)
-        # try:
-        #     record[0] = f"{record[0]}   -   {course_map[record[0]]}"
-        # except KeyError:
-        #     continue
         data.append(record)
         
     return data

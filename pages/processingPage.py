@@ -52,16 +52,16 @@ def processCGPA():
         st.session_state.studzone2_session = studzone2_home_page
         completed_courses, st.session_state.current_courses = getStudentCourses(studzone2_home_page)
         completed_semester = getCompletedSemester(studzone2_home_page)
+        
+        st.session_state.cgpa_data = getCGPA(completed_courses, completed_semester)
+        completed_courses_list = pd.DataFrame(completed_courses[1:],columns=completed_courses[0])
+        columns_order = ["S.No","COURSE CODE","COURSE TITLE","CREDITS","GRADE"]
+        st.session_state.completed_courses_list = completed_courses_list[columns_order]
+        st.session_state.cgpa_error = None
     except Exception as e:
         if st.secrets["LOG_ERROR"]:
             logError(str(e))
         raise e
     finally:
         st.session_state.is_cgpa_processed = True
-    
-    st.session_state.cgpa_data = getCGPA(completed_courses, completed_semester)
-    completed_courses_list = pd.DataFrame(completed_courses[1:],columns=completed_courses[0])
-    columns_order = ["S.No","COURSE CODE","COURSE TITLE","CREDITS","GRADE"]
-    st.session_state.completed_courses_list = completed_courses_list[columns_order]
-    st.session_state.cgpa_error = None
     
