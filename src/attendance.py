@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-import streamlit as st
 import math
 
 def getStudentAttendance(session: requests.Session):
@@ -17,9 +16,12 @@ def getStudentAttendance(session: requests.Session):
 
     #Get the list of table rows
     table_rows = attendance_table.find_all("tr")
-
-    #Get the mapping of course code to course name's initials
-    course_map = st.session_state.course_map
+    
+    if attendance_table is None or table_rows is None:
+        raise Exception("/studzone/Attendance/StudentPercentage has no content!")
+    
+    if len(table_rows[-1].find_all("td")) == 1:
+        raise Exception("Attendance data unavailable!")
 
     #Extract the values and append it to a list of records/rows
     data = []
@@ -28,10 +30,10 @@ def getStudentAttendance(session: requests.Session):
         record = []
         for cell in row.find_all("td"):
             record.append(cell.text)
-        try:
-            record[0] = f"{record[0]}   -   {course_map[record[0]]}"
-        except KeyError:
-            continue
+        # try:
+        #     record[0] = f"{record[0]}   -   {course_map[record[0]]}"
+        # except KeyError:
+        #     continue
         data.append(record)
         
     return data
@@ -113,3 +115,13 @@ def calculateLeaves(classes_present , classes_total , maintenance_percentage):
             return math.floor(affordable_leaves)
         else:
             return classes_total
+
+def mapCodeWithName(data, course_map):
+    for record in data:
+        course_code = record[0]
+        try:
+            record[0] = f"{course_code}   -    {course_map[course_code]}"
+        except KeyError:
+            continue
+        
+    return data

@@ -5,14 +5,10 @@ import pandas as pd
 
 @st.fragment
 def attendanceTab():
-    if st.session_state.attendance_available:
+    if not st.session_state.attendance_error:
         attendanceUI()
     else:
-        st.warning("""
-            Attendance data unavailable at the moment. Try :\n
-            ● Reloading the page and login again.\n
-            ● Check whether attendance is "On Process..."
-        """)
+        st.error(st.session_state.attendance_error)
 
 
 def attendanceUI():

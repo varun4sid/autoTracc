@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-from src.attendance import getStudentAttendance, getCourseNames
+from src.attendance import getStudentAttendance, getCourseNames, mapCodeWithName
 from src.cgpa import *
 from src.logger import userLogger
 from src.pagerequests import *
@@ -19,8 +19,11 @@ def processingPage():
             except Exception as fallback_error:
                 logError(str(fallback_error))
                 st.session_state.greeting = {"message": "Welcome!", "balloons": False}
-            
-        processAttendance()
+        
+        try:
+            processAttendance()
+        except Exception as e:
+            raise e
         
         st.session_state.page = "dashboard"
         st.rerun()
@@ -30,13 +33,17 @@ def processAttendance():
     try:
         st.session_state.course_map = getCourseNames(st.session_state.studzone1_session)
         attendance_data = getStudentAttendance(st.session_state.studzone1_session)
+        attendance_data = mapCodeWithName(attendance_data, st.session_state.course_map)
         st.session_state.attendance_data = attendance_data
-        df_columns = ["COURSE_CODE","TOTAL","EXEMPT_HOURS","ABSENT","PRESENT","% PHYSICAL","'%' EXEMPTION","% MEDICAL", "START", "END"]
-        st.session_state.attendance_percentage = pd.DataFrame(attendance_data, columns=df_columns)
-        st.session_state.updated_date = st.session_state.attendance_data[1][9]
-        st.session_state.attendance_available = True
-    except:
-        st.session_state.attendance_available = False
+    except Exception as e:
+        if st.secrets["LOG_ERROR"]:
+            logError(str(e))
+        st.session_state.attendance_error = str(e)
+        raise e
+    
+    df_columns = ["COURSE_CODE","TOTAL","EXEMPT_HOURS","ABSENT","PRESENT","% PHYSICAL","'%' EXEMPTION","% MEDICAL", "START", "END"]
+    st.session_state.attendance_percentage = pd.DataFrame(attendance_data, columns=df_columns)
+    st.session_state.updated_date = st.session_state.attendance_data[1][9]
 
 
 def processCGPA():
@@ -46,8 +53,8 @@ def processCGPA():
         completed_courses, st.session_state.current_courses = getStudentCourses(studzone2_home_page)
         completed_semester = getCompletedSemester(studzone2_home_page)
     except Exception as e:
-        st.session_state.cgpa_available = False
-        logError(str(e))
+        if st.secrets["LOG_ERROR"]:
+            logError(str(e))
         raise e
     finally:
         st.session_state.is_cgpa_processed = True

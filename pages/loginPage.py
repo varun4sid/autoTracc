@@ -84,7 +84,6 @@ def initializeSessionState():
         "cgpa_data":"",
         "current_courses": None,
         "completed_courses_list":None,
-        "cgpa_available": False,
         "custom_internals": 29,
         "custom_target": 50,
         "internals_data": None,
@@ -95,7 +94,8 @@ def initializeSessionState():
         "marksheet_value": False,
         "attendance_toggle": False,
         "attendance_percentage": "",
-        "cgpa_error": None
+        "cgpa_error": None,
+        "attendance_error": None
     }
 
     for key, value in defaults.items():
