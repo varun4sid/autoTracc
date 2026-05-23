@@ -17,8 +17,11 @@ def getStudentAttendance(session: requests.Session):
     #Get the list of table rows
     table_rows = attendance_table.find_all("tr")
     
-    if attendance_table is None or table_rows is None:
+    if attendance_table is None:
         raise Exception("/studzone/Attendance/StudentPercentage has no content!")
+    
+    if not table_rows:
+        raise Exception("Attendance data unavailable!")
     
     if len(table_rows[-1].find_all("td")) == 1:
         raise Exception("Attendance data unavailable!")

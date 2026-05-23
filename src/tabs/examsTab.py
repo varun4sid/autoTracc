@@ -20,10 +20,10 @@ def examsTab():
         
 
 def catTab():
-    cat_schedule = getCATExamSchedule(st.session_state.studzone1_session)
-    cat_schedule = mapCodeWithName(cat_schedule, st.session_state.course_map)
-    
     try:
+        cat_schedule = getCATExamSchedule(st.session_state.studzone1_session)
+        cat_schedule = mapCodeWithName(cat_schedule, st.session_state.course_map)
+    
         df_columns = ["COURSE_CODE","DATE","TIME"]
         df = pd.DataFrame(cat_schedule, columns=df_columns)
         st.dataframe(df, hide_index = True)
