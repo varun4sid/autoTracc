@@ -50,7 +50,7 @@ def processCGPA():
     try:
         studzone2_home_page = getStudzoneLegacy(st.session_state.rollno,st.session_state.password)
         st.session_state.studzone2_session = studzone2_home_page
-        completed_courses, st.session_state.current_courses = getStudentCourses(studzone2_home_page)
+        completed_courses, st.session_state.current_courses = getStudentCourses(studzone2_home_page, st.session_state.rollno)
         completed_semester = getCompletedSemester(studzone2_home_page)
         
         st.session_state.cgpa_data = getCGPA(completed_courses, completed_semester)

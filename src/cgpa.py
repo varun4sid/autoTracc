@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 
-def getStudentCourses(session: requests.Session):
+def getStudentCourses(session: requests.Session, rollno: str):
     #Get the courses page using the current session
     courses_page_url = "https://ecampus.psgtech.ac.in/studzone2/AttWfStudCourseSelection.aspx"
     
@@ -12,13 +12,13 @@ def getStudentCourses(session: requests.Session):
     #Get the html from the courses page
     courses_soup = BeautifulSoup(courses_page.text, "lxml")
 
-    completed_courses = getCompletedCourses(courses_soup)
+    completed_courses = getCompletedCourses(courses_soup, rollno)
     current_courses = getCurrentCourses(courses_soup)
     
     return completed_courses, current_courses
 
 
-def getCompletedCourses(soup):
+def getCompletedCourses(soup, rollno):
     completed_courses_table = soup.find("table",{"id":"PDGCourse"})
     completed_table_rows = completed_courses_table.find_all("tr")
     
@@ -32,19 +32,31 @@ def getCompletedCourses(soup):
         results.append(record)
     
     #Map the letter grades to their corresponding numeric values:
-    letter_grade = {
-        "O":10,
-        "A+":9,
-        "A":8,
-        "B+":7,
-        "B":6,
-        "C":5,
-    }
+    if rollno.startswith("25"):
+        letter_grade = {
+            "S":10,
+            "A+":9,
+            "A":8,
+            "B+":7,
+            "B":6.5,
+            "C+":6,
+            "C":5
+        }   
+    else:
+        letter_grade = {
+            "O":10,
+            "A+":9,
+            "A":8,
+            "B+":7,
+            "B":6,
+            "C":5,
+        }
+        
 
     #Convert required data to readable format
     for row in results[1:]:
         row[4] = int(row[4].strip())
-        row[6] = letter_grade[row[6].strip()]
+        row[6] = letter_grade.get(row[6].strip(), 0)
         row[7] = int(row[7].strip())
 
     return results
