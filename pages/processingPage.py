@@ -8,6 +8,15 @@ from src.pagerequests import *
 
 def processingPage():
     userLogger()
+        
+    processGreeting()
+    processAttendance()
+    
+    st.session_state.page = "dashboard"
+    st.rerun()
+    
+
+def processGreeting():
     with st.spinner("Fetching user data..."):
         #Compute the necessary details and store in session state
         try:
@@ -19,15 +28,7 @@ def processingPage():
             except Exception as fallback_error:
                 logError(str(fallback_error))
                 st.session_state.greeting = {"message": "Welcome!", "balloons": False}
-        
-        try:
-            processAttendance()
-        except Exception as e:
-            raise e
-        
-        st.session_state.page = "dashboard"
-        st.rerun()
-    
+
 
 def processAttendance():
     try:
@@ -39,7 +40,6 @@ def processAttendance():
         if st.secrets["LOG_ERROR"]:
             logError(str(e))
         st.session_state.attendance_error = str(e)
-        raise e
     
     df_columns = ["COURSE_CODE","TOTAL","EXEMPT_HOURS","ABSENT","PRESENT","% PHYSICAL","'%' EXEMPTION","% MEDICAL", "START", "END"]
     st.session_state.attendance_percentage = pd.DataFrame(attendance_data, columns=df_columns)
