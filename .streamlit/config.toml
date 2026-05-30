@@ -1,5 +1,8 @@
 [client]
 showSidebarNavigation = false
+showErrorDetails = "stacktrace"
+toolbarMode = "minimal"
 
 [server]
 showEmailPrompt = false
+fileWatcherType = "none"

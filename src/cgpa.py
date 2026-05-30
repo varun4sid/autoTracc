@@ -34,6 +34,7 @@ def getCompletedCourses(soup, rollno):
     #Map the letter grades to their corresponding numeric values:
     if rollno.startswith("25"):
         letter_grade = {
+            "O":10,
             "S":10,
             "A+":9,
             "A":8,
