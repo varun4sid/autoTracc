@@ -36,14 +36,14 @@ def processAttendance():
         attendance_data = getStudentAttendance(st.session_state.studzone1_session)
         attendance_data = mapCodeWithName(attendance_data, st.session_state.course_map)
         st.session_state.attendance_data = attendance_data
+        
+        df_columns = ["COURSE_CODE","TOTAL","EXEMPT_HOURS","ABSENT","PRESENT","% PHYSICAL","'%' EXEMPTION","% MEDICAL", "START", "END"]
+        st.session_state.attendance_percentage = pd.DataFrame(attendance_data, columns=df_columns)
+        st.session_state.updated_date = attendance_data[-1][9] if attendance_data else "N/A"
     except Exception as e:
         if st.secrets["LOG_ERROR"]:
             logError(str(e))
         st.session_state.attendance_error = str(e)
-    
-    df_columns = ["COURSE_CODE","TOTAL","EXEMPT_HOURS","ABSENT","PRESENT","% PHYSICAL","'%' EXEMPTION","% MEDICAL", "START", "END"]
-    st.session_state.attendance_percentage = pd.DataFrame(attendance_data, columns=df_columns)
-    st.session_state.updated_date = attendance_data[-1][9] if attendance_data else "N/A"
 
 
 def processCGPA():
