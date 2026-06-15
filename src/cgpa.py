@@ -123,8 +123,8 @@ def getCGPA(data, completed_semester):
     result = []
     
     #Initialize to calculate cgpa upto each semester
-    overall_product = 0
-    overall_credits = 0
+    overall_product = 0.0
+    overall_credits = 0.0
 
     #Initialize backlogs flag to handle pending cgpa calculation
     backlogs = False

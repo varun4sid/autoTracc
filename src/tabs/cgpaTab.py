@@ -81,7 +81,7 @@ def targetGPA():
                 label="GRADE",
                 min_value=5,
                 max_value=10,
-                step=1,
+                step=0.5,
                 disabled=None,
                 help="Enter expected grade for the course"
             ),
@@ -98,8 +98,8 @@ def targetGPA():
         logEvent("/targetCGPA")
         grade_credit_product = 0
         for index in range(len(current_courses)):
-            grade = int(edited_df.at[index, "GRADE"])
-            credits = int(edited_df.at[index, "CREDITS"])
+            grade = float(edited_df.at[index, "GRADE"])
+            credits = float(edited_df.at[index, "CREDITS"])
             grade_credit_product += grade * credits
         
         st.write(f"#### Expected GPA for {current_semester}th semester: {grade_credit_product / current_credits :.4f}")
