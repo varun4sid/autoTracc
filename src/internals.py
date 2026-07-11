@@ -11,11 +11,10 @@ def getInternals(session: requests.Session):
     
     internals_soup = BeautifulSoup(internals_page.text, "lxml")
     content_tables = internals_soup.find_all("div", {"class":"table-responsive"})
-    
-    if content_tables is None:
-        raise Exception("/studzone/ContinuousAssessment/CAMarksView has no content!")
 
-    if len(content_tables) != 2:
+    if len(content_tables) == 0:
+        raise Exception("No internals data found in /studzone/ContinuousAssessment/CAMarksView")
+    elif len(content_tables) != 2:
         """
         Internal marks schema varies drastically for different courses. It is hard to process them without knowing the exact schema.
         So currently this script will support only the internals schema with which this feature was built
