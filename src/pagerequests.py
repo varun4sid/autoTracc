@@ -52,11 +52,14 @@ def getStudzoneModern(rollno, password):
 
     #Get the response from POST
     response = session.post(login_url, data=payload)
-    
+
     if response.status_code not in [200,302]:
         raise Exception("Failed to connect to /studzone")
     if response.url == login_url:
         raise Exception("Invalid credentials! Try again!")
+    if "Error" in response.url:
+        error_message = "Failed to connect to /studzone"
+        logError(error_message)
 
     return session
 
