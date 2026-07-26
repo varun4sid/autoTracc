@@ -72,7 +72,10 @@ def initializeSessionState():
     defaults = {
         "rollno": "",
         "password": "",
-        "greeting": "",
+        "greeting": {
+            "message": "",
+            "birthday": False
+        },
         "attendance_slider": 75,
         "attendance_table": "",
         "exemption_table": "",
@@ -95,7 +98,9 @@ def initializeSessionState():
         "attendance_toggle": False,
         "attendance_percentage": "",
         "cgpa_error": None,
-        "attendance_error": None
+        "attendance_error": None,
+        "feedback_duration": None,
+        "available_feedback": None
     }
 
     for key, value in defaults.items():

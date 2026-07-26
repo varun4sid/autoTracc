@@ -3,6 +3,7 @@ import pandas as pd
 
 from src.attendance import getStudentAttendance, getCourseNames, mapCodeWithName
 from src.cgpa import *
+from src.feedback import getFeedbackDuration
 from src.logger import userLogger
 from src.pagerequests import *
 
@@ -24,10 +25,23 @@ def processGreeting():
         except Exception as e:
             try:
                 logError(str(e))
-                st.session_state.greeting = fallbackGreeting(st.session_state.studzone1_session)
+                st.session_state.greeting = { "message" : fallbackGreeting(st.session_state.studzone1_session), "balloons" : False }
             except Exception as fallback_error:
                 logError(str(fallback_error))
-                st.session_state.greeting = {"message": "Welcome!", "balloons": False}
+                st.session_state.greeting = { "message": "Welcome!", "balloons": False }
+                
+        try:
+            intermediate_duration = getFeedbackDuration(st.session_state.studzone1_session, "Intermediate")
+            endsem_duration = getFeedbackDuration(st.session_state.studzone1_session, "End Semester")
+            
+            st.session_state.feedback_duration = intermediate_duration or endsem_duration
+            if st.session_state.feedback_duration:
+                st.session_state.available_feedback = "Intermediate" if intermediate_duration else "End Semester"
+                
+        except Exception as e:
+            logError(str(e))
+            st.session_state.feedback_duration = None
+            st.session_state.available_feedback = None
 
 
 def processAttendance():

@@ -1,3 +1,4 @@
+from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -6,6 +7,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import StaleElementReferenceException
 from random import randint
 import streamlit as st
+import requests
 
 
 def createDriver():
@@ -143,3 +145,35 @@ def endsemForm(browser):
     browser.quit()
     progress_bar.empty()
     st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
+    
+    
+def getFeedbackDuration(session: requests.Session, mode: str):
+    feedback_page = session.get("https://ecampus.psgtech.ac.in/studzone/Feedback/Index")
+    
+    if feedback_page.status_code not in [200,302]:
+        return None 
+    feedback_page_soup = BeautifulSoup(feedback_page.text , "lxml")
+    feedback_cards = feedback_page_soup.find_all("div",{"class":"me-3"})
+    
+    if len(feedback_cards) != 2:
+        return None
+    
+    card = None
+    for feedback_card in feedback_cards:
+        if mode in feedback_card.text:
+            card = feedback_card
+            
+    end_date = card.find("span",{"id":"InterEndDate"}).text
+    
+    if not end_date:
+        return None
+    
+    start_date = card.find("span",{"id":"InterStartDate"}).text
+    
+    if not start_date:
+        return None
+    
+    return {
+        "start" : start_date,
+        "end" : end_date
+    }

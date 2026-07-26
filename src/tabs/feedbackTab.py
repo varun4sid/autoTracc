@@ -9,9 +9,9 @@ def feedbackTab():
     
     white_space_left, button1, button2, white_space_right = st.columns([2,2,2,2])
     with button1:
-        intermediate_form = st.button("Intermediate")
+        intermediate_form = st.button("Intermediate", disabled = not st.session_state.available_feedback == "Intermediate")
     with button2:
-        endsem_form       = st.button("End-Semester")
+        endsem_form       = st.button("End-Semester", disabled = not st.session_state.available_feedback == "End Semester")
     
     if endsem_form:
         try:
