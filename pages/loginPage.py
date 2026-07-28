@@ -100,7 +100,11 @@ def initializeSessionState():
         "cgpa_error": None,
         "attendance_error": None,
         "feedback_duration": None,
-        "available_feedback": None
+        "available_feedback": None,
+        "is_cat_schedule_processed": False,
+        "is_sem_schedule_processed": False,
+        "is_internals_processed": False,
+        "is_feedback_processed": False
     }
 
     for key, value in defaults.items():

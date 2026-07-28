@@ -9,9 +9,21 @@ def feedbackTab():
     
     white_space_left, button1, button2, white_space_right = st.columns([2,2,2,2])
     with button1:
-        intermediate_form = st.button("Intermediate", disabled = not st.session_state.available_feedback == "Intermediate")
+        intermediate_form = st.button(
+            "Intermediate",
+            disabled=(
+                st.session_state.available_feedback != "Intermediate"
+                or st.session_state.is_feedback_processed
+            ),
+        )
     with button2:
-        endsem_form       = st.button("End-Semester", disabled = not st.session_state.available_feedback == "End Semester")
+        endsem_form = st.button(
+            "End-Semester",
+            disabled=(
+                st.session_state.available_feedback != "End Semester"
+                or st.session_state.is_feedback_processed
+            ),
+        )
     
     if endsem_form:
         try:
@@ -22,6 +34,8 @@ def feedbackTab():
             st.warning("End semester feedback form not found! Try again if autofill interrupted!")
             logEvent("/feedback/endsem/failure")
             logError(str(e))
+        finally:
+            st.session_state.is_feedback_processed = True
     
     if intermediate_form:
         try:
@@ -33,3 +47,5 @@ def feedbackTab():
             st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")
             logEvent("/feedback/intermediate/failure")
             logError(str(e))
+        finally:
+            st.session_state.is_feedback_processed = True

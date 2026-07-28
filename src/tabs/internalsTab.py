@@ -7,7 +7,11 @@ from src.internals import *
 def internalsTab():
     table_tab,custom_tab = st.tabs(["CA Marks","Custom"])
     with table_tab:
-        fetch_internals = st.button("Fetch internal marks", key="fetch_internals_button")
+        fetch_internals = st.button(
+            "Fetch internal marks",
+            key="fetch_internals_button",
+            disabled=st.session_state.is_internals_processed,
+        )
         if fetch_internals:
             try:
                 st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
@@ -15,6 +19,8 @@ def internalsTab():
             except Exception as e:
                 logError(str(e))
                 st.error(str(e))
+            finally:
+                st.session_state.is_internals_processed = True
             
     with custom_tab:
         customScore()

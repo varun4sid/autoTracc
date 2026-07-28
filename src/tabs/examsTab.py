@@ -9,14 +9,28 @@ def examsTab():
     tabs = st.tabs(["CAT", "Semester"])
     
     with tabs[0]:
-        fetch_button_cat = st.button("Fetch CAT schedule", key="cat_schedule_button")
+        fetch_button_cat = st.button(
+            "Fetch CAT schedule",
+            key="cat_schedule_button",
+            disabled=st.session_state.is_cat_schedule_processed,
+        )
         if fetch_button_cat:
-            catTab()
+            try:
+                catTab()
+            finally:
+                st.session_state.is_cat_schedule_processed = True
         
     with tabs[1]:
-        fetch_button_sem = st.button("Fetch Sem schedule", key="sem_schedule_button")
+        fetch_button_sem = st.button(
+            "Fetch Sem schedule",
+            key="sem_schedule_button",
+            disabled=st.session_state.is_sem_schedule_processed,
+        )
         if fetch_button_sem:
-            semTab()
+            try:
+                semTab()
+            finally:
+                st.session_state.is_sem_schedule_processed = True
         
 
 def catTab():
