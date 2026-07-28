@@ -30,6 +30,15 @@ def createDriver():
 def autoFeedback(index,rollno,password):
     #Create a webdriver
     progress_bar = st.progress(0,text = "Fetching feedback page...")
+    
+    if index == 1:
+        check = checkIntermediateFeedbackFilled(st.session_state.studzone1_session)
+        if check:
+            progress_bar.empty()
+            st.write("Intermediate feedback form already filled!")
+            return
+        
+    
     browser = createDriver()
     wait = WebDriverWait(browser,10)
     
@@ -177,3 +186,17 @@ def getFeedbackDuration(session: requests.Session, mode: str):
         "start" : start_date,
         "end" : end_date
     }
+    
+    
+def checkIntermediateFeedbackFilled(session: requests.Session):
+    intermediate_page = session.get("https://ecampus.psgtech.ac.in/studzone/Feedback/Intermediate")
+    
+    intermediate_page_soup = BeautifulSoup(intermediate_page.text , "lxml")
+    
+    total_courses = intermediate_page_soup.select("div.card.intermediate-card")
+    feedback_filled = intermediate_page_soup.select("div.card.intermediate-card.bg-highlight")
+    
+    if len(total_courses) == 0:
+        return False
+    
+    return len(total_courses) == len(feedback_filled)
