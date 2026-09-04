@@ -42,7 +42,7 @@ def getTargetScore(theory_table, target):
         row = []
         row.append(record[0])
         if record[-2] in ['',' ','*']:
-            row.extend(['*','*'])
+            row.extend([0.0,'*','*'])
         else:
             pass_score = calculateTarget(record[-2],50)
             sem_score = calculateTarget(record[-2],target)
