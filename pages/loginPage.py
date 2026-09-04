@@ -95,7 +95,7 @@ def initializeSessionState():
         "course_map": None,
         "is_cgpa_processed": False,
         "marksheet_value": False,
-        "attendance_toggle": False,
+        "attendance_toggle": True,
         "attendance_percentage": "",
         "cgpa_error": None,
         "attendance_error": None,
