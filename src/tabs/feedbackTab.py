@@ -2,6 +2,8 @@ import streamlit as st
 from src.feedback import *
 from src.logger import logError, logEvent
 
+import time
+
 
 @st.fragment
 def feedbackTab():
@@ -28,7 +30,7 @@ def feedbackTab():
     if endsem_form:
         try:
             logEvent("/feedback/endsem")
-            autoFeedback(0,st.session_state.rollno,st.session_state.password)
+            st.write("In development...")
             logEvent("/feedback/endsem/success")
         except Exception as e:
             st.warning("End semester feedback form not found! Try again if autofill interrupted!")
@@ -40,8 +42,15 @@ def feedbackTab():
     if intermediate_form:
         try:
             logEvent("/feedback/intermediate")
-            autoFeedback(1,st.session_state.rollno,st.session_state.password)
+            start = time.time()
+            wait = st.empty()
+            wait.write("Please wait...")
+            fillform_intermediate(st.session_state.studzone1_session)
+            end = time.time()
             logEvent("/feedback/intermediate/success")
+            wait.empty()
+            st.write(f"Time taken: {end - start:.2f} seconds")
+            st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
         except Exception as e:
             print(str(e))
             st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")
