@@ -47,9 +47,10 @@ def feedbackTab():
             wait.write("Please wait...")
             fillform_intermediate(st.session_state.studzone1_session)
             end = time.time()
-            logEvent("/feedback/intermediate/success")
+            duration = end - start
+            logEvent(f"/feedback/intermediate/success duration {duration:.2f} seconds")
             wait.empty()
-            st.write(f"Time taken: {end - start:.2f} seconds")
+            st.write(f"Time taken: {duration:.2f} seconds")
             st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
         except Exception as e:
             print(str(e))
