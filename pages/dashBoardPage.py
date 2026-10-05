@@ -24,6 +24,9 @@ def dashBoardPage():
     # st.markdown(f"<p style = '{pstyle}'>Latest CGPA data is available :D</p>", unsafe_allow_html=True)
         
     st.divider()
+    
+    #ad
+    displayAd()
 
     #Separate the features with tabs
     attendance_tab, cgpa_tab, exams_tab, internals_tab,feedback_tab = st.tabs(["Attendance","CGPA","Exams","Internals","Feedback"])
@@ -63,3 +66,14 @@ def dashBoardFooter():
         
     st.markdown("""<p style = 'text-align:center;'>Join the <a href="https://github.com/varun4sid/autoTracc/discussions/new/choose">discussions</a>
                 to share new feauture ideas and report bugs!</p>""",unsafe_allow_html=True)
+    
+    
+def displayAd():
+    links = st.container(horizontal=True, horizontal_alignment="center")
+    st.image("assets/poster.png",width="stretch")
+    
+    with links:
+        st.download_button("Add to Calendar", file_name="assets/event.ics", data=open("assets/event.ics","rb").read(), mime="text/calendar", key="calendar", on_click=logEvent, args=("/ad/calendar",))
+        st.link_button("Follow on Instagram", url="https://www.instagram.com/psgtech_basketball", key="instagram", on_click=logEvent, args=("/ad/instagram",))
+        
+    st.divider()
