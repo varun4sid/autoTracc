@@ -28,7 +28,7 @@ def feedbackTab():
         )
     
     if endsem_form:
-        # try:
+        try:
             logEvent("/feedback/endsem")
             start = time.time()
             wait = st.empty()
@@ -41,12 +41,12 @@ def feedbackTab():
             st.write(f"Time taken: {duration:.2f} seconds")
             st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
             logEvent("/feedback/endsem/success")
-        # except Exception as e:
-        #     st.warning("End semester feedback form not found! Try again if autofill interrupted!")
-        #     logEvent("/feedback/endsem/failure")
-        #     logError(str(e))
-        # finally:
-        #     st.session_state.is_feedback_processed = True
+        except Exception as e:
+            st.warning("End semester feedback form not found! Try again if autofill interrupted!")
+            logEvent("/feedback/endsem/failure")
+            logError(str(e))
+        finally:
+            st.session_state.is_feedback_processed = True
     
     if intermediate_form:
         try:
