@@ -25,7 +25,6 @@ Live app: https://autotracc.streamlit.app
 - Once validated, data is fetched from specified PSG eCampus portal client-side routes and scraping the frontend pages with requests + BeautifulSoup.
 - The raw HTML is processed into data structures and desired information is extracted.
 - Streamlit is then used to display this information in an interactive UI.
-- Feedback autofill uses Selenium with headless Chromium and chromedriver.
 - Most computed values are stored in session state and rendered via Streamlit API.
 
 
@@ -36,7 +35,6 @@ Live app: https://autotracc.streamlit.app
 - requests
 - BeautifulSoup4 + lxml
 - pandas
-- Selenium (Chromium + chromedriver)
 
 ## Project Structure
 
@@ -49,7 +47,7 @@ Live app: https://autotracc.streamlit.app
 - src/cgpa.py: Course parsing and GPA/CGPA computation.
 - src/exams.py: Exam schedule parsing.
 - src/internals.py: Internal marks and target score calculations.
-- src/feedback.py: Selenium automation for feedback forms.
+- src/feedback.py: Feedback form automation.
 - src/tabs/: UI logic for each dashboard tab.
 
 ## Local Setup
@@ -74,15 +72,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-#### 4. Install system dependencies for Selenium
-
-On Debian/Ubuntu, install the packages listed in packages.txt. This is only to use the autofill feedback feature.
-```bash
-sudo apt-get update
-sudo apt-get install -y $(cat packages.txt)
-```
-
-#### 5. Run Streamlit app
+#### 4. Run Streamlit app
 
 ```bash
 streamlit run app.py
@@ -101,7 +91,6 @@ Open the local URL shown in terminal (usually http://localhost:8501).
 
 - Depends on PSG portal availability and HTML structure.
 - Scraping-based extraction may break when portal markup changes.
-- Feedback automation requires compatible Chromium and chromedriver setup.
 - Some tabs may show warnings when source data is temporarily unavailable.
 
 # Acknowledgements

@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import time
 
 def fillform_intermediate(session: requests.Session):
     intermediate_page_url = "https://ecampus.psgtech.ac.in/studzone/Feedback/Intermediate"
@@ -36,20 +37,41 @@ def fillform_intermediate(session: requests.Session):
             
 def fillform_endsem(session: requests.Session):
     load_staffs_endpoint = "https://ecampus.psgtech.ac.in/studzone/Feedback/LoadStaffs_endSem"
-    response = session.get(load_staffs_endpoint)
+    endsem_feedback_url = "https://ecampus.psgtech.ac.in/studzone/Feedback/endsemester"
+    
+    headers = {
+        "Accept": "*/*",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": endsem_feedback_url,
+    }
+    
+    resp = session.get(endsem_feedback_url)
+    if resp.status_code not in [200, 302]:
+        raise Exception("End semester feedback form not found! /studzone/Feedback/endsemester is unavailable!")
+    
+    response = session.get(load_staffs_endpoint, headers=headers)
+    if response.status_code not in [200, 302]:
+        raise Exception("Unable to load staff data! Try again!")
+    
     
     question_type_counts = {
         "T" : 31, # theory
         "U" : 31, # unknown
         "L" : 9 # lab
-    } 
+    }
     
     staff_data = response.json()
+    save_endpoint = "https://ecampus.psgtech.ac.in/studzone/Feedback/Save_EndSem"
+    
     for staff in staff_data:
+        if staff.get("error"):
+            print(f"Error fetching staff data: {staff['error']}, Type: {type(staff)}")
+            raise Exception(f"Unable to fetch staff data: {staff['error']}")
+        
         staffid = staff["staffId"]
         course_code = staff["courseCode"]
         course_type = staff["courseType"]
-        question_count = question_type_counts.get(course_type, 0)
+        question_count = int(question_type_counts.get(course_type, 0))
         
         questions = ""
         weights = ""
@@ -61,7 +83,6 @@ def fillform_endsem(session: requests.Session):
         questions = questions.rstrip("^")
         weights = weights.rstrip("^")
         
-        save_endpoint = "https://ecampus.psgtech.ac.in/studzone/Feedback/Save_EndSem"
         payload = {
             "coursecode": course_code,
             "coursetype": course_type,
@@ -69,8 +90,6 @@ def fillform_endsem(session: requests.Session):
             "quesID": questions,
             "scorWeight": weights
         }
-        
-        print(payload)
         
         session.post(save_endpoint, data=payload)
         
