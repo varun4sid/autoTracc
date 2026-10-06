@@ -31,7 +31,49 @@ def fillform_intermediate(session: requests.Session):
                 "quesID": i,
                 "ansid": 1,
             }
-            response = session.post(endpoint, data=payload)
+            session.post(endpoint, data=payload)
+            
+            
+def fillform_endsem(session: requests.Session):
+    load_staffs_endpoint = "https://ecampus.psgtech.ac.in/studzone/Feedback/LoadStaffs_endSem"
+    response = session.get(load_staffs_endpoint)
+    
+    question_type_counts = {
+        "T" : 31, # theory
+        "U" : 31, # unknown
+        "L" : 9 # lab
+    } 
+    
+    staff_data = response.json()
+    for staff in staff_data:
+        staffid = staff["staffId"]
+        course_code = staff["courseCode"]
+        course_type = staff["courseType"]
+        question_count = question_type_counts.get(course_type, 0)
+        
+        questions = ""
+        weights = ""
+        
+        for i in range(1, question_count + 1):
+            questions += f"{i}^"
+            weights += "4^"
+            
+        questions = questions.rstrip("^")
+        weights = weights.rstrip("^")
+        
+        save_endpoint = "https://ecampus.psgtech.ac.in/studzone/Feedback/Save_EndSem"
+        payload = {
+            "coursecode": course_code,
+            "coursetype": course_type,
+            "staffId": staffid,
+            "quesID": questions,
+            "scorWeight": weights
+        }
+        
+        print(payload)
+        
+        session.post(save_endpoint, data=payload)
+        
 
 def getFeedbackDuration(session: requests.Session, mode: str):
     feedback_page = session.get("https://ecampus.psgtech.ac.in/studzone/Feedback/Index")
