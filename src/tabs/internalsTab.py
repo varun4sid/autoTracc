@@ -1,6 +1,6 @@
 import streamlit as st
 from src.attendance import mapCodeWithName
-from src.logger import logError
+from src.logger import logError, logEvent
 from src.internals import *
 
 @st.fragment
@@ -15,13 +15,17 @@ def internalsTab():
         if fetch_internals:
             try:
                 st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
-                internalsUI()
+                logEvent("/internals/success")
             except Exception as e:
                 logError(str(e))
                 st.error(str(e))
+                logEvent("/internals/failure")
             finally:
                 st.session_state.is_internals_processed = True
-            
+
+        if "internals_data" in st.session_state and st.session_state.is_internals_processed:
+            internalsUI()
+        
     with custom_tab:
         customScore()
 
