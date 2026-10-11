@@ -24,7 +24,8 @@ def internalsTab():
                 st.session_state.is_internals_processed = True
 
         if "internals_data" in st.session_state and st.session_state.is_internals_processed:
-            internalsUI()
+            if st.session_state.internals_data:
+                internalsUI()
         
     with custom_tab:
         customScore()

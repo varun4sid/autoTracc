@@ -24,9 +24,6 @@ def dashBoardPage():
     # st.markdown(f"<p style = '{pstyle}'>Latest CGPA data is available :D</p>", unsafe_allow_html=True)
         
     st.divider()
-    
-    #ad
-    displayAd()
 
     #Separate the features with tabs
     attendance_tab, cgpa_tab, exams_tab, internals_tab,feedback_tab = st.tabs(["Attendance","CGPA","Exams","Internals","Feedback"])
