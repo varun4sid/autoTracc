@@ -28,41 +28,31 @@ def feedbackTab():
         )
     
     if endsem_form:
-        try:
-            logEvent("/feedback/endsem")
-            start = time.time()
-            wait = st.empty()
-            wait.write("Please wait...")
-            fillform_endsem(st.session_state.studzone1_session)
-            end = time.time()
-            duration = end - start
-            logEvent(f"/feedback/endsem/success duration {duration:.2f} seconds")
-            wait.empty()
-            st.write(f"Time taken: {duration:.2f} seconds")
-            st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
-        except Exception as e:
-            st.error(str(e))
-            logEvent("/feedback/endsem/failure")
-            logError(str(e))
-        finally:
-            st.session_state.is_feedback_processed = True
+        autofill_form("endsem")
     
     if intermediate_form:
-        try:
-            logEvent("/feedback/intermediate")
-            start = time.time()
-            wait = st.empty()
-            wait.write("Please wait...")
+        autofill_form("intermediate")
+            
+            
+def autofill_form(mode):
+    try:
+        logEvent(f"/feedback/{mode}")
+        start = time.time()
+        wait = st.empty()
+        wait.write("Please wait...")
+        if mode == "endsem":
+            fillform_endsem(st.session_state.studzone1_session)
+        elif mode == "intermediate":
             fillform_intermediate(st.session_state.studzone1_session)
-            end = time.time()
-            duration = end - start
-            logEvent(f"/feedback/intermediate/success duration {duration:.2f} seconds")
-            wait.empty()
-            st.write(f"Time taken: {duration:.2f} seconds")
-            st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
-        except Exception as e:
-            st.warning("Intermediate feedback form not found! Try again if autofill interrupted!")
-            logEvent("/feedback/intermediate/failure")
-            logError(str(e))
-        finally:
-            st.session_state.is_feedback_processed = True
+        end = time.time()
+        duration = end - start
+        logEvent(f"/feedback/{mode}/success duration {duration:.2f} seconds")
+        wait.empty()
+        st.write(f"Time taken: {duration:.2f} seconds")
+        st.markdown("##### Done! Check your [studzone](https://ecampus.psgtech.ac.in/studzone)!")
+    except Exception as e:
+        st.error(str(e))
+        logEvent(f"/feedback/{mode}/failure")
+        logError(str(e))
+    finally:
+        st.session_state.is_feedback_processed = True
