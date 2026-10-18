@@ -14,7 +14,10 @@ def internalsTab():
         )
         if fetch_internals:
             try:
-                st.session_state.internals_data, st.session_state.is_lab_internals = getInternals(st.session_state.studzone1_session)
+                (
+                    st.session_state.internals_data,
+                    st.session_state.internals_is_lab,
+                ) = getInternals(st.session_state.studzone1_session)
                 logEvent("/internals/success")
             except Exception as e:
                 logError(str(e))
@@ -25,22 +28,24 @@ def internalsTab():
 
         if "internals_data" in st.session_state and st.session_state.is_internals_processed:
             if st.session_state.internals_data:
-                internalsUI()
+                if st.session_state.internals_is_lab:
+                    labInternalsUI()
+                else:
+                    internalsUI()
         
     with custom_tab:
-        customScore()
+        if st.session_state.get("internals_is_lab", False):
+            st.info("The custom score calculator is available for theory courses only.")
+        else:
+            customScore()
 
 
 def renderInternals():
-    is_lab = st.session_state.get('is_lab_internals', False)
-    course_label  = "Lab / Project Course" if is_lab else "Theory Course"
-    internals_max = "60" if is_lab else "50"
-
     table_header = f"""
         <table style='margin:auto;'>
             <tr>
-                <th rowspan="2">{course_label}</th>
-                <th rowspan="2">Internals (/{internals_max})</th>
+                <th rowspan="2">Theory Course</th>
+                <th rowspan="2">Internals (/50)</th>
                 <th colspan="2">Required Semester Score</th>
             </tr>
             <tr>
@@ -101,11 +106,37 @@ def internalsUI():
         value = 50
     )
     
-    if not st.session_state.get('is_lab_internals', False):
-        st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
+    st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
     
-    internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider, st.session_state.get('is_lab_internals', False))
+    internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
     st.session_state.internals_table = mapCodeWithName(internals_table, st.session_state.course_map)
     
     renderInternals()
     st.info("'-' denotes you can't achieve target with your current internal marks!")
+
+
+def labInternalsUI():
+    table_header = """
+        <table style='margin:auto;'>
+            <tr>
+                <th>Course</th>
+                <th>Internal Marks (/60)</th>
+            </tr>
+    """
+
+    table_body = ""
+    for record in st.session_state.internals_data:
+        if len(record) < 2:
+            continue
+
+        course_code = record[0].strip()
+        course_title = record[1].strip()
+        internal_marks = record[-2].strip() if len(record) >= 2 else ""
+        course = f"{course_code} - {course_title}" if course_title else course_code
+        table_body += (
+            f"<tr><td style='text-align:left;'>{course}</td>"
+            f"<td style='text-align:right;'>{internal_marks}</td></tr>"
+        )
+
+    table = table_header + table_body + "</table><br>"
+    st.markdown(table, unsafe_allow_html=True)

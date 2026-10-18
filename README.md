@@ -17,6 +17,7 @@ Live app: https://autotracc.streamlit.app
 - Show internal marks and required end-semester score:
   - Required score to pass.
   - Required score to hit a custom target.
+  - Display `/60` CA marks directly for project and lab semesters.
 - Provide a one-click feedback autofill flow for Intermediate and End-Semester forms.
 
 ## How It Works
