@@ -14,7 +14,7 @@ def internalsTab():
         )
         if fetch_internals:
             try:
-                st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
+                st.session_state.internals_data, st.session_state.is_lab_internals = getInternals(st.session_state.studzone1_session)
                 logEvent("/internals/success")
             except Exception as e:
                 logError(str(e))
@@ -32,11 +32,15 @@ def internalsTab():
 
 
 def renderInternals():
+    is_lab = st.session_state.get('is_lab_internals', False)
+    course_label  = "Lab / Project Course" if is_lab else "Theory Course"
+    internals_max = "60" if is_lab else "50"
+
     table_header = f"""
         <table style='margin:auto;'>
             <tr>
-                <th rowspan="2">Theory Course</th>
-                <th rowspan="2">Internals (/50)</th>
+                <th rowspan="2">{course_label}</th>
+                <th rowspan="2">Internals (/{internals_max})</th>
                 <th colspan="2">Required Semester Score</th>
             </tr>
             <tr>
@@ -97,9 +101,10 @@ def internalsUI():
         value = 50
     )
     
-    st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
+    if not st.session_state.get('is_lab_internals', False):
+        st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
     
-    internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+    internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider, st.session_state.get('is_lab_internals', False))
     st.session_state.internals_table = mapCodeWithName(internals_table, st.session_state.course_map)
     
     renderInternals()
