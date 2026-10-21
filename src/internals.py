@@ -15,13 +15,12 @@ def getInternals(session: requests.Session):
     if len(content_tables) == 0:
         raise Exception("No internals data found in /studzone/ContinuousAssessment/CAMarksView")
     elif len(content_tables) == 1:
-        # Project/lab semester: the only table contains the CA marks.
-        theory_table_body = content_tables[0].find("tbody")
-        is_lab = True
+        # Project semester: the only table contains the CA marks.
+        secondary_table_body = content_tables[0].find("tbody")
     elif len(content_tables) == 2:
         # Theory semester: the second table contains the CA marks.
         theory_table_body = content_tables[1].find("tbody")
-        is_lab = False
+        secondary_table_body = content_tables[0].find("tbody")
     else:
         """
         Internal marks schema varies drastically for different courses. It is hard to process them without knowing the exact schema.
@@ -30,9 +29,10 @@ def getInternals(session: requests.Session):
         raise Exception("Unsupported internals page layout - unexpected number of tables found.")
 
     if theory_table_body is None:
-        raise Exception("Internals data table has no content.")
+        raise Exception("Internals data not found!")
     
     theory_table_rows = theory_table_body.find_all("tr")
+    
     
     theory_table = []
     for row in theory_table_rows:
@@ -41,8 +41,20 @@ def getInternals(session: requests.Session):
         for cell in cells:
             record.append(cell.text)
         theory_table.append(record)
+        
+    if secondary_table_body:
+        secondary_table_rows = secondary_table_body.find_all("tr")
+        secondary_table = []
+        for row in secondary_table_rows:
+            record = []
+            cells = row.find_all("td")
+            for cell in cells:
+                record.append(cell.text)
+            secondary_table.append(record)
+    else:
+        secondary_table = None
 
-    return theory_table, is_lab
+    return theory_table, secondary_table
     
     
 def getTargetScore(theory_table, target):

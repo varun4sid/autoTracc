@@ -2,6 +2,7 @@ import streamlit as st
 from src.attendance import mapCodeWithName
 from src.logger import logError, logEvent
 from src.internals import *
+import pandas as pd
 
 @st.fragment
 def internalsTab():
@@ -15,8 +16,8 @@ def internalsTab():
         if fetch_internals:
             try:
                 (
-                    st.session_state.internals_data,
-                    st.session_state.internals_is_lab,
+                    st.session_state.internals_theory,
+                    st.session_state.internals_secondary,
                 ) = getInternals(st.session_state.studzone1_session)
                 logEvent("/internals/success")
             except Exception as e:
@@ -26,12 +27,17 @@ def internalsTab():
             finally:
                 st.session_state.is_internals_processed = True
 
-        if "internals_data" in st.session_state and st.session_state.is_internals_processed:
-            if st.session_state.internals_data:
-                if st.session_state.internals_is_lab:
+
+        if "internals_theory" in st.session_state and st.session_state.is_internals_processed:
+            if st.session_state.internals_theory:
+                internalsUI()
+            if st.session_state.internals_secondary:
+                try:
                     labInternalsUI()
-                else:
-                    internalsUI()
+                except Exception as e:
+                    logError(str(e))
+                    st.error(str(e))
+
         
     with custom_tab:
         if st.session_state.get("internals_is_lab", False):
@@ -108,7 +114,7 @@ def internalsUI():
     
     st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
     
-    internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+    internals_table = getTargetScore(st.session_state.internals_theory, st.session_state.target_slider)
     st.session_state.internals_table = mapCodeWithName(internals_table, st.session_state.course_map)
     
     renderInternals()
@@ -116,27 +122,12 @@ def internalsUI():
 
 
 def labInternalsUI():
-    table_header = """
-        <table style='margin:auto;'>
-            <tr>
-                <th>Course</th>
-                <th>Internal Marks (/60)</th>
-            </tr>
-    """
-
-    table_body = ""
-    for record in st.session_state.internals_data:
-        if len(record) < 2:
-            continue
-
-        course_code = record[0].strip()
-        course_title = record[1].strip()
-        internal_marks = record[-2].strip() if len(record) >= 2 else ""
-        course = f"{course_code} - {course_title}" if course_title else course_code
-        table_body += (
-            f"<tr><td style='text-align:left;'>{course}</td>"
-            f"<td style='text-align:right;'>{internal_marks}</td></tr>"
-        )
-
-    table = table_header + table_body + "</table><br>"
-    st.markdown(table, unsafe_allow_html=True)
+    table_header_columns = ["Lab Course", "Total (/50)"]
+    
+    lab_table = []
+    for row in st.session_state.internals_secondary:
+        lab_table.append([st.session_state.course_map.get(row[0], row[0]), row[-2]])
+    
+    lab_df = pd.DataFrame(lab_table, columns=table_header_columns)
+    st.write("Lab courses/Project work")
+    st.dataframe(lab_df, column_order=table_header_columns, hide_index=True)
