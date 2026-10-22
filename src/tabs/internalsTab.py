@@ -116,27 +116,20 @@ def internalsUI():
 
 
 def labInternalsUI():
-    table_header = """
-        <table style='margin:auto;'>
-            <tr>
-                <th>Course</th>
-                <th>Internal Marks (/60)</th>
-            </tr>
-    """
-
-    table_body = ""
+    lab_internals = []
     for record in st.session_state.internals_data:
         if len(record) < 2:
             continue
 
         course_code = record[0].strip()
         course_title = record[1].strip()
-        internal_marks = record[-2].strip() if len(record) >= 2 else ""
+        internal_marks = record[-2].strip()
         course = f"{course_code} - {course_title}" if course_title else course_code
-        table_body += (
-            f"<tr><td style='text-align:left;'>{course}</td>"
-            f"<td style='text-align:right;'>{internal_marks}</td></tr>"
+        lab_internals.append(
+            {
+                "Course": course,
+                "Internal Marks (/60)": internal_marks,
+            }
         )
 
-    table = table_header + table_body + "</table><br>"
-    st.markdown(table, unsafe_allow_html=True)
+    st.table(lab_internals)
