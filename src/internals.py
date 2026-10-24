@@ -14,14 +14,23 @@ def getInternals(session: requests.Session):
 
     if len(content_tables) == 0:
         raise Exception("No internals data found in /studzone/ContinuousAssessment/CAMarksView")
-    elif len(content_tables) != 2:
+    elif len(content_tables) == 1:
+        # Project/lab semester: the only table contains the CA marks.
+        theory_table_body = content_tables[0].find("tbody")
+        is_lab = True
+    elif len(content_tables) == 2:
+        # Theory semester: the second table contains the CA marks.
+        theory_table_body = content_tables[1].find("tbody")
+        is_lab = False
+    else:
         """
         Internal marks schema varies drastically for different courses. It is hard to process them without knowing the exact schema.
-        So currently this script will support only the internals schema with which this feature was built
+        So currently this script supports only schemas with one or two tables.
         """
-        raise Exception("This feature is currently only supported for non-project semesters of MSc Integrated courses!")
-    
-    theory_table_body = content_tables[1].find("tbody")
+        raise Exception("Unsupported internals page layout - unexpected number of tables found.")
+
+    if theory_table_body is None:
+        raise Exception("Internals data table has no content.")
     
     theory_table_rows = theory_table_body.find_all("tr")
     
@@ -33,7 +42,7 @@ def getInternals(session: requests.Session):
             record.append(cell.text)
         theory_table.append(record)
 
-    return theory_table
+    return theory_table, is_lab
     
     
 def getTargetScore(theory_table, target):

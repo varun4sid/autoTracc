@@ -14,7 +14,10 @@ def internalsTab():
         )
         if fetch_internals:
             try:
-                st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
+                (
+                    st.session_state.internals_data,
+                    st.session_state.internals_is_lab,
+                ) = getInternals(st.session_state.studzone1_session)
                 logEvent("/internals/success")
             except Exception as e:
                 logError(str(e))
@@ -25,10 +28,16 @@ def internalsTab():
 
         if "internals_data" in st.session_state and st.session_state.is_internals_processed:
             if st.session_state.internals_data:
-                internalsUI()
+                if st.session_state.internals_is_lab:
+                    labInternalsUI()
+                else:
+                    internalsUI()
         
     with custom_tab:
-        customScore()
+        if st.session_state.get("internals_is_lab", False):
+            st.info("The custom score calculator is available for theory courses only.")
+        else:
+            customScore()
 
 
 def renderInternals():
@@ -104,3 +113,23 @@ def internalsUI():
     
     renderInternals()
     st.info("'-' denotes you can't achieve target with your current internal marks!")
+
+
+def labInternalsUI():
+    lab_internals = []
+    for record in st.session_state.internals_data:
+        if len(record) < 2:
+            continue
+
+        course_code = record[0].strip()
+        course_title = record[1].strip()
+        internal_marks = record[-2].strip()
+        course = f"{course_code} - {course_title}" if course_title else course_code
+        lab_internals.append(
+            {
+                "Course": course,
+                "Internal Marks (/60)": internal_marks,
+            }
+        )
+
+    st.table(lab_internals)
