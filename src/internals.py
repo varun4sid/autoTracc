@@ -11,29 +11,50 @@ def getInternals(session: requests.Session):
     
     internals_soup = BeautifulSoup(internals_page.text, "lxml")
     content_tables = internals_soup.find_all("div", {"class":"table-responsive"})
+    theory_table_body = None
+    secondary_table_body = None
 
     if len(content_tables) == 0:
         raise Exception("No internals data found in /studzone/ContinuousAssessment/CAMarksView")
-    elif len(content_tables) != 2:
+    elif len(content_tables) == 1:
+        # Project semester: the only table contains the CA marks.
+        secondary_table_body = content_tables[0].find("tbody")
+    elif len(content_tables) == 2:
+        # Theory semester: the second table contains the CA marks.
+        theory_table_body = content_tables[1].find("tbody")
+        secondary_table_body = content_tables[0].find("tbody")
+    else:
         """
         Internal marks schema varies drastically for different courses. It is hard to process them without knowing the exact schema.
-        So currently this script will support only the internals schema with which this feature was built
+        So currently this script supports only schemas with one or two tables.
         """
-        raise Exception("This feature is currently only supported for non-project semesters of MSc Integrated courses!")
-    
-    theory_table_body = content_tables[1].find("tbody")
-    
-    theory_table_rows = theory_table_body.find_all("tr")
-    
-    theory_table = []
-    for row in theory_table_rows:
-        record = []
-        cells = row.find_all("td")
-        for cell in cells:
-            record.append(cell.text)
-        theory_table.append(record)
+        raise Exception("Unsupported internals page layout - unexpected number of tables found.")
 
-    return theory_table
+    if theory_table_body:
+        theory_table_rows = theory_table_body.find_all("tr")
+        theory_table = []
+        for row in theory_table_rows:
+            record = []
+            cells = row.find_all("td")
+            for cell in cells:
+                record.append(cell.text)
+            theory_table.append(record)
+    else:
+        theory_table = None
+        
+    if secondary_table_body:
+        secondary_table_rows = secondary_table_body.find_all("tr")
+        secondary_table = []
+        for row in secondary_table_rows:
+            record = []
+            cells = row.find_all("td")
+            for cell in cells:
+                record.append(cell.text)
+            secondary_table.append(record)
+    else:
+        secondary_table = None
+
+    return theory_table, secondary_table
     
     
 def getTargetScore(theory_table, target):

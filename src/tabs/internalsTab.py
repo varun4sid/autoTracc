@@ -2,6 +2,7 @@ import streamlit as st
 from src.attendance import mapCodeWithName
 from src.logger import logError, logEvent
 from src.internals import *
+import pandas as pd
 
 @st.fragment
 def internalsTab():
@@ -14,7 +15,10 @@ def internalsTab():
         )
         if fetch_internals:
             try:
-                st.session_state.internals_data = getInternals(st.session_state.studzone1_session)
+                (
+                    st.session_state.internals_theory,
+                    st.session_state.internals_secondary,
+                ) = getInternals(st.session_state.studzone1_session)
                 logEvent("/internals/success")
             except Exception as e:
                 logError(str(e))
@@ -23,12 +27,23 @@ def internalsTab():
             finally:
                 st.session_state.is_internals_processed = True
 
-        if "internals_data" in st.session_state and st.session_state.is_internals_processed:
-            if st.session_state.internals_data:
+
+        if "internals_theory" in st.session_state and st.session_state.is_internals_processed:
+            if st.session_state.internals_theory:
                 internalsUI()
+            if st.session_state.internals_secondary:
+                try:
+                    labInternalsUI()
+                except Exception as e:
+                    logError(str(e))
+                    st.error(str(e))
+
         
     with custom_tab:
-        customScore()
+        if st.session_state.get("internals_is_lab", False):
+            st.info("The custom score calculator is available for theory courses only.")
+        else:
+            customScore()
 
 
 def renderInternals():
@@ -99,8 +114,20 @@ def internalsUI():
     
     st.write("You need a final score of atleast 50 and a semester exam score of atleast 45 to pass!")
     
-    internals_table = getTargetScore(st.session_state.internals_data, st.session_state.target_slider)
+    internals_table = getTargetScore(st.session_state.internals_theory, st.session_state.target_slider)
     st.session_state.internals_table = mapCodeWithName(internals_table, st.session_state.course_map)
     
     renderInternals()
     st.info("'-' denotes you can't achieve target with your current internal marks!")
+
+
+def labInternalsUI():
+    table_header_columns = ["Lab Course", "Total (/50)"]
+    
+    lab_table = []
+    for row in st.session_state.internals_secondary:
+        lab_table.append([st.session_state.course_map.get(row[0], row[0]), row[-2]])
+    
+    lab_df = pd.DataFrame(lab_table, columns=table_header_columns)
+    st.write("Lab courses/Project work")
+    st.dataframe(lab_df, column_order=table_header_columns, hide_index=True)
