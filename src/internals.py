@@ -11,6 +11,8 @@ def getInternals(session: requests.Session):
     
     internals_soup = BeautifulSoup(internals_page.text, "lxml")
     content_tables = internals_soup.find_all("div", {"class":"table-responsive"})
+    theory_table_body = None
+    secondary_table_body = None
 
     if len(content_tables) == 0:
         raise Exception("No internals data found in /studzone/ContinuousAssessment/CAMarksView")
@@ -28,19 +30,17 @@ def getInternals(session: requests.Session):
         """
         raise Exception("Unsupported internals page layout - unexpected number of tables found.")
 
-    if theory_table_body is None:
-        raise Exception("Internals data not found!")
-    
-    theory_table_rows = theory_table_body.find_all("tr")
-    
-    
-    theory_table = []
-    for row in theory_table_rows:
-        record = []
-        cells = row.find_all("td")
-        for cell in cells:
-            record.append(cell.text)
-        theory_table.append(record)
+    if theory_table_body:
+        theory_table_rows = theory_table_body.find_all("tr")
+        theory_table = []
+        for row in theory_table_rows:
+            record = []
+            cells = row.find_all("td")
+            for cell in cells:
+                record.append(cell.text)
+            theory_table.append(record)
+    else:
+        theory_table = None
         
     if secondary_table_body:
         secondary_table_rows = secondary_table_body.find_all("tr")
