@@ -50,10 +50,7 @@ def catTab():
 def semTab():
     try:
         sem_schedule = getSemExamSchedule(st.session_state.studzone2_session)
-
-        df_columns = ["TITLE","DATE","SLOT"]
-        df = pd.DataFrame(sem_schedule, columns=df_columns)
-        st.dataframe(df, hide_index = True)
+        st.dataframe(sem_schedule, hide_index = True)
         logEvent("/schedule/sem/success")
     except Exception as e:
         logError(e)
